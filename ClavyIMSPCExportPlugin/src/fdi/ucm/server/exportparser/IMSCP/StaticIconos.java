@@ -1,4 +1,4 @@
-package fdi.ucm.server.exportparser.html;
+package fdi.ucm.server.exportparser.IMSCP;
 
 /**
  * Clase que define las constantes de las imagenes de los iconos en el sistema

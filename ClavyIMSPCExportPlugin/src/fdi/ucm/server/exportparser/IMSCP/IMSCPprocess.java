@@ -1,7 +1,7 @@
 /**
  * 
  */
-package fdi.ucm.server.exportparser.html;
+package fdi.ucm.server.exportparser.IMSCP;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
@@ -46,7 +46,7 @@ import fdi.ucm.server.modelComplete.collection.grammar.CompleteGrammar;
  * @author Joaquin Gayoso-Cabada
  *
  */
-public class HTMLprocess {
+public class IMSCPprocess {
 
 	private static final int _1000 = 1000;
 	protected static final String EXPORTTEXT = "Export HTML RESULT";
@@ -59,7 +59,7 @@ public class HTMLprocess {
 	protected HashMap<String,CompleteElementType> NameCSS;
 	protected static final String CLAVY="OdAClavy";
 
-	public HTMLprocess(ArrayList<Long> listaDeDocumentos, CompleteCollection salvar, String sOURCE_FOLDER, CompleteLogAndUpdates cL) {
+	public IMSCPprocess(ArrayList<Long> listaDeDocumentos, CompleteCollection salvar, String sOURCE_FOLDER, CompleteLogAndUpdates cL) {
 		ListaDeDocumentosT=new ArrayList<List<Long>>();
 		
 		if (listaDeDocumentos.isEmpty())
@@ -237,7 +237,7 @@ public class HTMLprocess {
 			IconF.mkdirs();
 			
 			
-			String Path=StaticFunctionsHTML.calculaIconoString(completeDocuments.getIcon());
+			String Path=StaticFunctionsIMSCP.calculaIconoString(completeDocuments.getIcon());
 			
 			String[] spliteStri=Path.split("/");
 			String NameS = spliteStri[spliteStri.length-1];
@@ -345,7 +345,7 @@ public class HTMLprocess {
 					if (Linked!=null)
 					{
 						
-					String Path=StaticFunctionsHTML.calculaIconoString(Linked.getIcon());
+					String Path=StaticFunctionsIMSCP.calculaIconoString(Linked.getIcon());
 					
 					String[] spliteStri=Path.split("/");
 					String NameS = spliteStri[spliteStri.length-1];
@@ -409,7 +409,7 @@ public class HTMLprocess {
 					File IconF=new File(SOURCE_FOLDER+File.separator+completeDocuments.getClavilenoid());
 					IconF.mkdirs();
 					
-					String Path=StaticFunctionsHTML.calculaIconoString(Linked.getPath());
+					String Path=StaticFunctionsIMSCP.calculaIconoString(Linked.getPath());
 					
 					
 					String[] spliteStri=Path.split("/");
@@ -557,7 +557,7 @@ return null;
 			CompleteGrammar completeGrammar,List<Long> ListaDeDocumentos) {
 		ArrayList<CompleteDocuments> Salida=new ArrayList<CompleteDocuments>();
 		for (CompleteDocuments iterable_element : Salvar.getEstructuras()) {
-			if (ListaDeDocumentos.isEmpty()||(ListaDeDocumentos.contains(iterable_element.getClavilenoid())&&StaticFunctionsHTML.isInGrammar(iterable_element,completeGrammar)))
+			if (ListaDeDocumentos.isEmpty()||(ListaDeDocumentos.contains(iterable_element.getClavilenoid())&&StaticFunctionsIMSCP.isInGrammar(iterable_element,completeGrammar)))
 				Salida.add(iterable_element);
 		}
 		return Salida;

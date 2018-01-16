@@ -1,4 +1,4 @@
-package fdi.ucm.server.exportparser.html;
+package fdi.ucm.server.exportparser.IMSCP;
 
 import java.util.HashSet;
 import java.util.List;
@@ -10,7 +10,7 @@ import fdi.ucm.server.modelComplete.collection.grammar.CompleteGrammar;
 
 
 
-public class StaticFunctionsHTML {
+public class StaticFunctionsIMSCP {
 
 	private static final String CLAVYICONOS = "http://a-note.fdi.ucm.es/Clavy/";
 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package fdi.ucm.server.exportparser.html.oda;
+package fdi.ucm.server.exportparser.IMSCP;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,13 +9,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 
-import fdi.ucm.server.modelComplete.ImportExportDataEnum;
 import fdi.ucm.server.modelComplete.ImportExportPair;
 import fdi.ucm.server.modelComplete.CompleteImportRuntimeException;
 import fdi.ucm.server.modelComplete.SaveCollection;
@@ -27,30 +24,21 @@ import fdi.ucm.server.modelComplete.collection.CompleteLogAndUpdates;
  * @author Joaquin Gayoso-Cabada
  *
  */
-public class HTMLSaveCollectionOdA extends SaveCollection {
+public class IMSCPSaveCollection extends SaveCollection {
 
-	private static final String ODA = "HTML de datos en OdA";
+	private static final String IMSCP = "IMS CP";
 	private ArrayList<ImportExportPair> Parametros;
-	private ArrayList<Long> ListaDeDocumentos;
 	private String Path;
 	private String FileIO;
-//	private static final int BUFFER = 2048;
 	private List<String> fileList; 
 	private String OUTPUT_ZIP_FILE = "";
 	private String SOURCE_FOLDER = ""; // SourceFolder path
-	private ArrayList<Long> DocumentsList;
-	private ArrayList<Long> StructureList;
-	private boolean Admin;
-	private static final Pattern regexAmbito = Pattern.compile("^[0-9]+(,[0-9]+)*$");
 
 	
 	/**
 	 * Constructor por defecto
 	 */
-		public HTMLSaveCollectionOdA() {
-			DocumentsList=new ArrayList<Long>();
-			StructureList=new ArrayList<Long>();
-			Admin=true;
+		public IMSCPSaveCollection() {
 	}
 
 	/* (non-Javadoc)
@@ -63,8 +51,8 @@ public class HTMLSaveCollectionOdA extends SaveCollection {
 			
 			CompleteLogAndUpdates CL=new CompleteLogAndUpdates();
 			
-			if (!ListaDeDocumentos.isEmpty())
-			{
+//			if (!ListaDeDocumentos.isEmpty())
+//			{
 			
 			Path=PathTemporalFiles;
 			SOURCE_FOLDER=Path+"HTML"+File.separator;
@@ -72,11 +60,8 @@ public class HTMLSaveCollectionOdA extends SaveCollection {
 			Dir.mkdirs();
 			
 			
-			
-			HTMLprocessOdA oda= new HTMLprocessOdA(ListaDeDocumentos,Salvar,SOURCE_FOLDER,CL,DocumentsList,Admin,StructureList);
-			
-			
-			oda.preocess();
+//			HTMLprocess oda= new HTMLprocess(ListaDeDocumentos,Salvar,SOURCE_FOLDER,CL);	
+//			oda.preocess();
 				
 			fileList = new ArrayList<String>();
 			OUTPUT_ZIP_FILE = Path+System.currentTimeMillis()+".zip";
@@ -88,16 +73,16 @@ public class HTMLSaveCollectionOdA extends SaveCollection {
 				CL.getLogLines().add("Descarga el zip");
 			} catch (Exception e) {
 				e.printStackTrace();
-				CL.getLogLines().add("Error en zip, refresca las imagenes manualmente");
+				CL.getLogLines().add("Error in zip, refresh images manually");
 			}
 
 			return CL;
-			}
-			else 
-			{
-				CL.getLogLines().add("Error en lista, numero de documentos vacio");
-				return CL;
-			}
+//			}
+//			else 
+//			{
+//				CL.getLogLines().add("Error in list, numeber of documents empty");
+//				return CL;
+//			}
 
 		} catch (CompleteImportRuntimeException e) {
 			System.err.println("Exception HTML " +e.getGENERIC_ERROR());
@@ -131,7 +116,7 @@ public class HTMLSaveCollectionOdA extends SaveCollection {
 		if (Parametros==null)
 		{
 			ArrayList<ImportExportPair> ListaCampos=new ArrayList<ImportExportPair>();
-			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Text, "Number de los IDOV en OdA para exportar separados por ','"));
+//			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Text, "Documents ids to export separated by ',' empty for all documents in collection",true));
 			Parametros=ListaCampos;
 			return ListaCampos;
 		}
@@ -142,38 +127,37 @@ public class HTMLSaveCollectionOdA extends SaveCollection {
 	public void setConfiguracion(ArrayList<String> DateEntrada) {
 		if (DateEntrada!=null)
 		{
-			String Entrada=DateEntrada.get(0).trim();
-			if (Entrada.endsWith(","))
-				Entrada=Entrada.substring(0, Entrada.length()-1);
 			
-			if (testList(Entrada))
-				ListaDeDocumentos=generaListaDocuments(Entrada);
-			else
-				throw new CompleteImportRuntimeException("La lista de documentos no posee una forma normal, debe de tener la forma: \"####,####,####\"");
-			
-			
+//			String Entrada=DateEntrada.get(0).trim();
+//			if (Entrada.endsWith(","))
+//				Entrada=Entrada.substring(0, Entrada.length()-1);
+//			
+//			if (testList(Entrada))
+//				ListaDeDocumentos=generaListaDocuments(Entrada);
+//			else
+//				throw new CompleteImportRuntimeException("List of Documents can not be normal, list should be like this \"####,####,####\"");
 
 		}
 	}
 		
 
-	private ArrayList<Long> generaListaDocuments(String string) {
-		String[] strings=string.split(",");
-		ArrayList<Long> Salida=new ArrayList<Long>();
-		for (String string2 : strings) {
-			try {
-				Long N=Long.parseLong(string2);
-				Salida.add(N);
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-		}
-		return Salida;
-	}
+//	private ArrayList<Long> generaListaDocuments(String string) {
+//		String[] strings=string.split(",");
+//		ArrayList<Long> Salida=new ArrayList<Long>();
+//		for (String string2 : strings) {
+//			try {
+//				Long N=Long.parseLong(string2);
+//				Salida.add(N);
+//			} catch (Exception e) {
+//				// handle exception
+//			}
+//		}
+//		return Salida;
+//	}
 
 	@Override
 	public String getName() {
-		return ODA;
+		return IMSCP;
 	}
 
 
@@ -282,58 +266,10 @@ public class HTMLSaveCollectionOdA extends SaveCollection {
  
 	
 	public static void main(String[] args) {
-		System.out.println(testList("6658,6658,6658,asd"));
-		System.out.println(testList("6658"));
+		
 	}
 
-	private static boolean testList(String number) {
-		if (number==null||number.isEmpty())
-			return true;
-		 Matcher matcher = regexAmbito.matcher(number);
-		return matcher.matches();
-	}
 
-	/**
-	 * @return the documentsList
-	 */
-	public ArrayList<Long> getDocumentsList() {
-		return DocumentsList;
-	}
-
-	/**
-	 * @param documentsList the documentsList to set
-	 */
-	public void setDocumentsList(ArrayList<Long> documentsList) {
-		DocumentsList = documentsList;
-	}
-
-	/**
-	 * @return the structureList
-	 */
-	public ArrayList<Long> getStructureList() {
-		return StructureList;
-	}
-
-	/**
-	 * @param structureList the structureList to set
-	 */
-	public void setStructureList(ArrayList<Long> structureList) {
-		StructureList = structureList;
-	}
-
-	/**
-	 * @return the admin
-	 */
-	public boolean isAdmin() {
-		return Admin;
-	}
-
-	/**
-	 * @param admin the admin to set
-	 */
-	public void setAdmin(boolean admin) {
-		Admin = admin;
-	}
 	
 	
 	
