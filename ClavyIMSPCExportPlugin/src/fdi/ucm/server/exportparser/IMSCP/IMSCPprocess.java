@@ -48,42 +48,20 @@ import fdi.ucm.server.modelComplete.collection.grammar.CompleteGrammar;
  */
 public class IMSCPprocess {
 
-	private static final int _1000 = 1000;
+
 	protected static final String EXPORTTEXT = "Export HTML RESULT";
-	protected ArrayList<List<Long>> ListaDeDocumentosT;
+	protected Long DocumentoT;
 	protected CompleteCollection Salvar;
 	protected String SOURCE_FOLDER;
-	protected StringBuffer CodigoHTML;
 	protected CompleteLogAndUpdates CL;
 	private static final Pattern regexAmbito = Pattern.compile("^(ht|f)tp(s)*://(.)*$");
 	protected HashMap<String,CompleteElementType> NameCSS;
 	protected static final String CLAVY="OdAClavy";
 
-	public IMSCPprocess(ArrayList<Long> listaDeDocumentos, CompleteCollection salvar, String sOURCE_FOLDER, CompleteLogAndUpdates cL) {
-		ListaDeDocumentosT=new ArrayList<List<Long>>();
-		
-		if (listaDeDocumentos.isEmpty())
-			{
-			for (CompleteDocuments Docu : salvar.getEstructuras()) {
-				listaDeDocumentos.add(Docu.getClavilenoid());
-			}
-			}
+	public IMSCPprocess(Long listaDeDocumentos, CompleteCollection salvar, String sOURCE_FOLDER, CompleteLogAndUpdates cL) {
 		
 		
-		if (listaDeDocumentos.size()<_1000)
-			ListaDeDocumentosT.add(listaDeDocumentos);
-		else
-			{
-			for (int i = 0; i < listaDeDocumentos.size(); i=i+_1000) {
-				int fin=i+_1000;
-				if (fin>listaDeDocumentos.size())
-					fin=listaDeDocumentos.size();
-				ListaDeDocumentosT.add(listaDeDocumentos.subList(i, fin));
-					
-				}
-			}
-		
-		
+		DocumentoT=listaDeDocumentos;
 		Salvar=salvar;
 		SOURCE_FOLDER=sOURCE_FOLDER;
 		CL=cL;
@@ -93,10 +71,42 @@ public class IMSCPprocess {
 
 	public void preocess() {
 		
-		int total=0;
+		
+		
+		
+		ArrayList<CompleteGrammar> GramaticasAProcesar=ProcesaGramaticas(Salvar.getMetamodelGrammar());
+		CompleteDocuments completeDocuments = null;
+		ArrayList<CompleteGrammar> completeGrammarL=new ArrayList<CompleteGrammar>();
+		
+		for (CompleteDocuments docuemntos : Salvar.getEstructuras()) {
+			if (docuemntos.getClavilenoid().equals(DocumentoT))
+			{
+			completeDocuments=docuemntos;
+			break;
+			}
+		}
+		
+		if (completeDocuments==null)
+			{
+			CL.getLogLines().add("Error, documento no existe");
+			return;
+			}
+		
+		for (CompleteGrammar completeGrammar : GramaticasAProcesar) {
+			if (StaticFunctionsIMSCP.isInGrammar(completeDocuments,completeGrammar))
+				completeGrammarL.add(completeGrammar);
+		
+		
+		}
+		
+		
+//TODO AQUI HAY QUE SACAR LA LISTA DE LOS IMPLICADOS
+//		List<CompleteElement> listaElem = completeDocuments.getDescription();
+//		List<Long> DocumentosHijos=procesaElement(listaElem);
 
-		for (List<Long> ListaDeDocumentos : ListaDeDocumentosT) {
-			CodigoHTML=new StringBuffer();
+		
+		
+			StringBuffer CodigoHTML = new StringBuffer();
 			CodigoHTML.append("<html>");
 			CodigoHTML.append("<head>");  
 			CodigoHTML.append("<title>"+EXPORTTEXT+"</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">"); 
@@ -114,24 +124,69 @@ public class IMSCPprocess {
 			CodigoHTML.append("<body>");
 			CodigoHTML.append("<ul class\"_List LBody\">");
 			
+			CodigoHTML.append("<li class=\"_Document\"><span class=\"_Type Ident N_0\"> Document: </span><span class=\"Ident _Value N_0V\">"+completeDocuments.getClavilenoid()+"</span></li>");
+			CodigoHTML.append("<ul class=\"_List General\">");
+			File IconF=new File(SOURCE_FOLDER+File.separator+completeDocuments.getClavilenoid());
+			IconF.mkdirs();
 			
-			ArrayList<CompleteGrammar> GramaticasAProcesar=ProcesaGramaticas(Salvar.getMetamodelGrammar());
-			for (CompleteGrammar completeGrammar : GramaticasAProcesar) {
-				ArrayList<CompleteDocuments> Lista=calculadocumentos(completeGrammar,ListaDeDocumentos);
-				if (!Lista.isEmpty())
-					{
-					Lista=ordenaLista(Lista);
-					proceraDocumentos(Lista,completeGrammar);
-					}
+			
+			String Path=StaticFunctionsIMSCP.calculaIconoString(completeDocuments.getIcon());
+			
+			String[] spliteStri=Path.split("/");
+			String NameS = spliteStri[spliteStri.length-1];
+			String Icon=SOURCE_FOLDER+File.separator+completeDocuments.getClavilenoid()+File.separator+NameS;
+			
+			try {
+				URL url2 = new URL(Path);
+				 URI uri2 = new URI(url2.getProtocol(), url2.getUserInfo(), url2.getHost(), url2.getPort(), url2.getPath(), url2.getQuery(), url2.getRef());
+				 url2 = uri2.toURL();
+				
+				saveImage(url2, Icon);
+			} catch (Exception e) {
+				CL.getLogLines().add("Error in Icon copy, file with url ->>"+completeDocuments.getIcon()+" not found or restringed");
 			}
+			
+			int width= 50;
+			int height=50;
+			int widthmini= 50;
+			int heightmini=50;
+			
+			try {
+				BufferedImage bimg = ImageIO.read(new File(SOURCE_FOLDER+File.separator+completeDocuments.getClavilenoid()+File.separator+NameS));
+				width= bimg.getWidth();
+				height= bimg.getHeight();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			
+			 widthmini= 50;
+			 heightmini= (50*height)/width;
+			
+//			if (width=0)
+			
+			
+			CodigoHTML.append("<li> <span class=\"_Type Icon N_1\">Icon:</span> <img class=\"Icon _Value N_1V\" src=\""+completeDocuments.getClavilenoid()+File.separator+NameS+"\" onmouseover=\"this.width="+width+";this.height="+height+";\" onmouseout=\"this.width="+widthmini+";this.height="+heightmini+";\" width=\""+widthmini+"\" height=\""+heightmini+"\" alt=\""+Path+"\" /></li>");
+			CodigoHTML.append("<li> <span class=\"_Type Description N_2\">Description:</span> <span class=\"Description _Value N_0V\">"+completeDocuments.getDescriptionText()+"</span></li>");
+			for (CompleteGrammar completeGrammar : completeGrammarL) {
+
+				for (CompleteElementType completeST : completeGrammar.getSons()) {
+					String Salida = processST(completeST,completeDocuments);
+					if (!Salida.isEmpty())
+						CodigoHTML.append(Salida);
+				}
+			
+		}
+			CodigoHTML.append("</ul>");
+			CodigoHTML.append("<br>");
+		
 			
 			CodigoHTML.append("</ul>");
 			CodigoHTML.append("</body>");
 			CodigoHTML.append("</html>");
 			
-			creaLaWeb((ListaDeDocumentosT.size()==1),total,total+500);
-			total=total+500;
-		}
+			creaLaWeb(CodigoHTML,Long.toString(completeDocuments.getClavilenoid()));
+
 		
 		
 		creaLACSS();
@@ -139,11 +194,7 @@ public class IMSCPprocess {
 		
 	}
 
-	private ArrayList<CompleteDocuments> ordenaLista(
-			ArrayList<CompleteDocuments> lista) {
-		quicksort(lista, 0, lista.size()-1);
-		return lista;
-	}
+
 	
 	protected void quicksort(ArrayList<CompleteDocuments> A, int izq, int der) {
 
@@ -190,19 +241,15 @@ public class IMSCPprocess {
 		
 	}
 
-	private void creaLaWeb(boolean unico, int inicio, int fin) {
+	private void creaLaWeb(StringBuffer CodigoHTML,String LongName) {
 //		 FileWriter filewriter = null;
 //		 PrintWriter printw = null;
 		    
-		String Name;
-		if (unico)
-			Name="index";
-		else
-			Name=inicio+"_"+fin;
+
 		
 		try {
 			
-			File fileDir = new File(SOURCE_FOLDER+"\\"+Name+".html");
+			File fileDir = new File(SOURCE_FOLDER+"\\"+LongName+".html");
 			 
 			Writer out = new BufferedWriter(new OutputStreamWriter(
 				new FileOutputStream(fileDir), "UTF8"));
@@ -228,65 +275,6 @@ public class IMSCPprocess {
 		
 	}
 
-	protected void proceraDocumentos(ArrayList<CompleteDocuments> lista,
-			CompleteGrammar completeGrammar) {
-		for (CompleteDocuments completeDocuments : lista) {
-			CodigoHTML.append("<li class=\"_Document\"><span class=\"_Type Ident N_0\"> Document: </span><span class=\"Ident _Value N_0V\">"+completeDocuments.getClavilenoid()+"</span></li>");
-			CodigoHTML.append("<ul class=\"_List General\">");
-			File IconF=new File(SOURCE_FOLDER+File.separator+completeDocuments.getClavilenoid());
-			IconF.mkdirs();
-			
-			
-			String Path=StaticFunctionsIMSCP.calculaIconoString(completeDocuments.getIcon());
-			
-			String[] spliteStri=Path.split("/");
-			String NameS = spliteStri[spliteStri.length-1];
-			String Icon=SOURCE_FOLDER+File.separator+completeDocuments.getClavilenoid()+File.separator+NameS;
-			
-			try {
-				URL url2 = new URL(Path);
-				 URI uri2 = new URI(url2.getProtocol(), url2.getUserInfo(), url2.getHost(), url2.getPort(), url2.getPath(), url2.getQuery(), url2.getRef());
-				 url2 = uri2.toURL();
-				
-				saveImage(url2, Icon);
-			} catch (Exception e) {
-				CL.getLogLines().add("Error in Icon copy, file with url ->>"+completeDocuments.getIcon()+" not found or restringed");
-			}
-			
-			int width= 50;
-			int height=50;
-			int widthmini= 50;
-			int heightmini=50;
-			
-			try {
-				BufferedImage bimg = ImageIO.read(new File(SOURCE_FOLDER+File.separator+completeDocuments.getClavilenoid()+File.separator+NameS));
-				width= bimg.getWidth();
-				height= bimg.getHeight();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			
-			 widthmini= 50;
-			 heightmini= (50*height)/width;
-			
-//			if (width=0)
-			
-			
-			CodigoHTML.append("<li> <span class=\"_Type Icon N_1\">Icon:</span> <img class=\"Icon _Value N_1V\" src=\""+completeDocuments.getClavilenoid()+File.separator+NameS+"\" onmouseover=\"this.width="+width+";this.height="+height+";\" onmouseout=\"this.width="+widthmini+";this.height="+heightmini+";\" width=\""+widthmini+"\" height=\""+heightmini+"\" alt=\""+Path+"\" /></li>");
-			CodigoHTML.append("<li> <span class=\"_Type Description N_2\">Description:</span> <span class=\"Description _Value N_0V\">"+completeDocuments.getDescriptionText()+"</span></li>");
-			for (CompleteElementType completeST : completeGrammar.getSons()) {
-				String Salida = processST(completeST,completeDocuments);
-				if (!Salida.isEmpty())
-					CodigoHTML.append(Salida);
-			}
-			
-			CodigoHTML.append("</ul>");
-			CodigoHTML.append("<br>");
-		}
-		
-		
-	}
 	
 	/**
 	 * Salva una imagen dado un destino
@@ -553,15 +541,7 @@ for (CompleteElement elementos : description) {
 return null;
 }
 	
-	protected ArrayList<CompleteDocuments> calculadocumentos(
-			CompleteGrammar completeGrammar,List<Long> ListaDeDocumentos) {
-		ArrayList<CompleteDocuments> Salida=new ArrayList<CompleteDocuments>();
-		for (CompleteDocuments iterable_element : Salvar.getEstructuras()) {
-			if (ListaDeDocumentos.isEmpty()||(ListaDeDocumentos.contains(iterable_element.getClavilenoid())&&StaticFunctionsIMSCP.isInGrammar(iterable_element,completeGrammar)))
-				Salida.add(iterable_element);
-		}
-		return Salida;
-	}
+
 
 	protected ArrayList<CompleteGrammar> ProcesaGramaticas(
 			List<CompleteGrammar> metamodelGrammar) {

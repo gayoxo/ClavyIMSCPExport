@@ -64,8 +64,8 @@ public class IMSCPSaveCollection extends SaveCollection {
 			Dir.mkdirs();
 			
 			
-//			HTMLprocess oda= new HTMLprocess(ListaDeDocumentos,Salvar,SOURCE_FOLDER,CL);	
-//			oda.preocess();
+			IMSCPprocess baseProcess= new IMSCPprocess(DocumentoRaiz,Salvar,SOURCE_FOLDER,CL);	
+			baseProcess.preocess();
 				
 			fileList = new ArrayList<String>();
 			OUTPUT_ZIP_FILE = Path+System.currentTimeMillis()+".zip";
