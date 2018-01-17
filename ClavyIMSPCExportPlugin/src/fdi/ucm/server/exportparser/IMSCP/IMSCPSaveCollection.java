@@ -59,7 +59,7 @@ public class IMSCPSaveCollection extends SaveCollection {
 //			{
 			
 			Path=PathTemporalFiles;
-			SOURCE_FOLDER=Path+"HTML"+File.separator;
+			SOURCE_FOLDER=Path;
 			File Dir=new File(SOURCE_FOLDER);
 			Dir.mkdirs();
 			

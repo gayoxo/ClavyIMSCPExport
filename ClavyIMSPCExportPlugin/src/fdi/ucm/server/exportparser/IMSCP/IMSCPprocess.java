@@ -23,11 +23,27 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.management.RuntimeErrorException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Attr;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 
 import fdi.ucm.server.modelComplete.collection.CompleteCollection;
 import fdi.ucm.server.modelComplete.collection.CompleteLogAndUpdates;
@@ -56,6 +72,11 @@ public class IMSCPprocess {
 	protected CompleteLogAndUpdates CL;
 	private static final Pattern regexAmbito = Pattern.compile("^(ht|f)tp(s)*://(.)*$");
 	protected HashMap<String,CompleteElementType> NameCSS;
+	private Element metadata;
+	private Element organizations;
+	private Element resources;
+	private HashMap<String, String> Recursos;
+	private int contadorRec;
 	protected static final String CLAVY="OdAClavy";
 
 	public IMSCPprocess(Long listaDeDocumentos, CompleteCollection salvar, String sOURCE_FOLDER, CompleteLogAndUpdates cL) {
@@ -71,12 +92,9 @@ public class IMSCPprocess {
 
 	public void preocess() {
 		
+		String SN=Long.toString(System.nanoTime());
 		
-		
-		
-		ArrayList<CompleteGrammar> GramaticasAProcesar=ProcesaGramaticas(Salvar.getMetamodelGrammar());
 		CompleteDocuments completeDocuments = null;
-		ArrayList<CompleteGrammar> completeGrammarL=new ArrayList<CompleteGrammar>();
 		
 		for (CompleteDocuments docuemntos : Salvar.getEstructuras()) {
 			if (docuemntos.getClavilenoid().equals(DocumentoT))
@@ -86,11 +104,204 @@ public class IMSCPprocess {
 			}
 		}
 		
+		
+
 		if (completeDocuments==null)
 			{
 			CL.getLogLines().add("Error, documento no existe");
 			return;
 			}
+		
+		Recursos=new HashMap<String,String>();
+		
+		try {
+			
+			contadorRec=0;
+			
+			
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	        DocumentBuilder builder = factory.newDocumentBuilder();
+	        DOMImplementation implementation = builder.getDOMImplementation();
+	        Document document = implementation.createDocument(null, "manifest", null);
+	        document.setXmlVersion("1.0");
+	        
+	        
+	        
+	        Element manifest = document.getDocumentElement();
+	        
+	        {
+		        Attr Atr = document.createAttribute("xmlns");
+		        Atr.setValue("http://www.imsglobal.org/xsd/imscp_v1p1");
+		        manifest.setAttributeNode(Atr);
+		        }
+		        
+		        {
+			    Attr Atr = document.createAttribute("xmlns:imsmd");
+			    Atr.setValue("http://www.imsglobal.org/xsd/imsmd_v1p2");
+			    manifest.setAttributeNode(Atr);
+			    }
+
+		        {
+			    Attr Atr = document.createAttribute("xmlns:xsi");
+			    Atr.setValue("http://www.w3.org/2001/XMLSchema-instance");
+			    manifest.setAttributeNode(Atr);
+			    }
+		        
+		        {
+			    Attr Atr = document.createAttribute("xsi:schemaLocation");
+			    Atr.setValue("http://www.imsglobal.org/xsd/imscp_v1p1 ../xsds/imscp_v1p2.xsd http://www.imsglobal.org/xsd/imsmd_v1p2 http://www.imsglobal.org/xsd/imsmd_v1p2p4.xsd ");
+			    manifest.setAttributeNode(Atr);
+			    }
+		        
+		        {
+			    Attr Atr = document.createAttribute("identifier");
+			    Atr.setValue("CLAVY_MAINFEST"+SN);
+			    manifest.setAttributeNode(Atr);
+			    }
+		        
+		        
+		        {
+				Attr Atr = document.createAttribute("version");
+				Atr.setValue("IMS CP 1.2");
+				manifest.setAttributeNode(Atr);
+				}
+	        
+	        metadata = document.createElement("metadata"); 
+	        organizations = document.createElement("organizations"); 
+	        resources = document.createElement("resources"); 
+	        
+	        manifest.appendChild(metadata);
+	        manifest.appendChild(organizations);
+	        manifest.appendChild(resources);
+	        
+	        processMetadata(completeDocuments,document);
+	        String Main_S=processOrganization(completeDocuments,document);
+	        {
+				Attr Atr = document.createAttribute("default");
+				Atr.setValue(Main_S);
+				organizations.setAttributeNode(Atr);
+			}
+	        processResources(document);
+	        
+	        
+	        
+	        //Generate XML
+            Source source = new DOMSource(document);
+            //Indicamos donde lo queremos almacenar
+            Result result = new StreamResult(new java.io.File("imsmanifest.xml")); //nombre del archivo
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(
+                    "{http://xml.apache.org/xslt}indent-amount", "3");
+            transformer.transform(source, result);
+	        
+		} catch (Exception e) {
+			e.printStackTrace();
+			CL.getLogLines().add(e.getLocalizedMessage());
+		}
+		
+		
+		
+		
+		creaLACSS();
+		
+		
+	}
+
+
+	
+	private void processResources(Document document) {
+		for (Entry<String, String> recursotable : Recursos.entrySet()) {
+			Element ResourceUni = document.createElement("resource"); 
+			resources.appendChild(ResourceUni);
+			{
+		        Attr Atr = document.createAttribute("identifier");
+		        Atr.setValue(recursotable.getKey());
+		        ResourceUni.setAttributeNode(Atr);
+		        }
+		        
+		        {
+			    Attr Atr = document.createAttribute("type");
+			    Atr.setValue("webcontent");
+			    ResourceUni.setAttributeNode(Atr);
+			    }
+		        
+		        
+		        {
+			        Attr Atr = document.createAttribute("href");
+			        Atr.setValue(recursotable.getValue());
+			        resources.setAttributeNode(Atr);
+			        }
+			        
+		        Element FileUni = document.createElement("file"); 
+		        ResourceUni.appendChild(FileUni);
+		        
+		        {
+			        Attr Atr = document.createAttribute("href");
+			        Atr.setValue(recursotable.getValue());
+			        FileUni.setAttributeNode(Atr);
+			        }
+		        
+			
+		}
+		
+	}
+
+	private String processOrganization(CompleteDocuments completeDocuments, Document document) {
+			
+			String NameBlock="MAIN_TOC"+completeDocuments.getClavilenoid();
+			
+			Element Organization = document.createElement("organization"); 
+			organizations.appendChild(Organization);
+			
+				{
+		        Attr Atr = document.createAttribute("identifier");
+		        Atr.setValue("NameBlock");
+		        Organization.setAttributeNode(Atr);
+		        }
+		        
+		        {
+			    Attr Atr = document.createAttribute("structure");
+			    Atr.setValue("hierarchical");
+			    Organization.setAttributeNode(Atr);
+			    }
+		        
+		     Element Title = document.createElement("title"); 
+		     Organization.appendChild(Title);
+		     Text nodeKeyValue = document.createTextNode(completeDocuments.getDescriptionText());
+		     Title.appendChild(nodeKeyValue);
+		     
+		     Element Item = document.createElement("item"); 
+		     Organization.appendChild(Item);
+		     
+		     {
+			        Attr Atr = document.createAttribute("identifier");
+			        Atr.setValue("MAIN_ITEM");
+			        Item.setAttributeNode(Atr);
+			        }
+			        
+			        {
+			        String MAINSTR="MAIN_RESOURCE"+(contadorRec++);	
+			        String Recurso=ProcessFileHTML(completeDocuments);
+				    Attr Atr = document.createAttribute("identifierref");
+				    Atr.setValue(MAINSTR);
+				    Item.setAttributeNode(Atr);
+				    Recursos.put(MAINSTR, Recurso);
+				    }
+		
+		return NameBlock;
+	}
+
+
+
+
+
+	private String ProcessFileHTML(CompleteDocuments completeDocuments) {
+		ArrayList<CompleteGrammar> GramaticasAProcesar=ProcesaGramaticas(Salvar.getMetamodelGrammar());
+		ArrayList<CompleteGrammar> completeGrammarL=new ArrayList<CompleteGrammar>();
+		
+
+		
 		
 		for (CompleteGrammar completeGrammar : GramaticasAProcesar) {
 			if (StaticFunctionsIMSCP.isInGrammar(completeDocuments,completeGrammar))
@@ -185,17 +396,51 @@ public class IMSCPprocess {
 			CodigoHTML.append("</body>");
 			CodigoHTML.append("</html>");
 			
-			creaLaWeb(CodigoHTML,Long.toString(completeDocuments.getClavilenoid()));
+			return creaLaWeb(CodigoHTML,Long.toString(completeDocuments.getClavilenoid()));
+	}
 
+	private void processMetadata(CompleteDocuments completeDocuments, Document document) {
+		{
+			Element keyNode = document.createElement("schema"); 
+            Text nodeKeyValue = document.createTextNode("IMS Content");	
+            keyNode.appendChild(nodeKeyValue);
+            metadata.appendChild(keyNode);
+		}
+		
+		{
+			Element keyNode = document.createElement("schemaversion"); 
+            Text nodeKeyValue = document.createTextNode("1.2");	
+            keyNode.appendChild(nodeKeyValue);
+            metadata.appendChild(keyNode);
+		}
 		
 		
-		creaLACSS();
+		//IMS LOM
+		{
+			Element LOM = document.createElement("imsmd:lom"); 
+            metadata.appendChild(LOM);
+            
+            Element General = document.createElement("imsmd:general"); 
+            LOM.appendChild(General);
+            
+            Element Title = document.createElement("imsmd:title"); 
+            General.appendChild(Title);
+            
+            Element Lan = document.createElement("imsmd:langstring"); 
+            Title.appendChild(Lan);
+            
+            Attr Atr = document.createAttribute("xml:lang");
+			Atr.setValue("en-US");
+			Lan.setAttributeNode(Atr);
+			
+			Text nodeKeyValue = document.createTextNode(completeDocuments.getDescriptionText());
+			Lan.appendChild(nodeKeyValue);
+		}
+		
 		
 		
 	}
 
-
-	
 	protected void quicksort(ArrayList<CompleteDocuments> A, int izq, int der) {
 
 		  CompleteDocuments pivote=A.get(izq); // tomamos primer elemento como pivote
@@ -241,15 +486,15 @@ public class IMSCPprocess {
 		
 	}
 
-	private void creaLaWeb(StringBuffer CodigoHTML,String LongName) {
+	private String creaLaWeb(StringBuffer CodigoHTML,String LongName) {
 //		 FileWriter filewriter = null;
 //		 PrintWriter printw = null;
 		    
 
 		
 		try {
-			
-			File fileDir = new File(SOURCE_FOLDER+"\\"+LongName+".html");
+			String Salida=LongName+".html";
+			File fileDir = new File(SOURCE_FOLDER+"\\"+Salida);
 			 
 			Writer out = new BufferedWriter(new OutputStreamWriter(
 				new FileOutputStream(fileDir), "UTF8"));
@@ -259,6 +504,7 @@ public class IMSCPprocess {
 			out.flush();
 			out.close();
 			
+			return Salida;
 //			 filewriter = new FileWriter(SOURCE_FOLDER+"\\index.html");//declarar el archivo
 //		     printw = new PrintWriter(filewriter);//declarar un impresor
 //		          
