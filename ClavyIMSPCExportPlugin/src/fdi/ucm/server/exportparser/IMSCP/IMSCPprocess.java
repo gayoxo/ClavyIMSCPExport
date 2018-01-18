@@ -57,6 +57,9 @@ import fdi.ucm.server.modelComplete.collection.document.CompleteResourceElementU
 import fdi.ucm.server.modelComplete.collection.document.CompleteTextElement;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteElementType;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteGrammar;
+import fdi.ucm.server.modelComplete.collection.grammar.CompleteLinkElementType;
+import fdi.ucm.server.modelComplete.collection.grammar.CompleteResourceElementType;
+import fdi.ucm.server.modelComplete.collection.grammar.CompleteTextElementType;
 
 
 /**
@@ -450,7 +453,7 @@ public class IMSCPprocess {
 //			CodigoHTML.append("li.doc {color: blue;}");	
 //			CodigoHTML.append("</style>");
 			CodigoHTML.append("</head>");  
-			CodigoHTML.append("<body>");
+			CodigoHTML.append("<body onload=\"primeraTab()\">");
 			
 			CodigoHTML.append("<script>");
 			CodigoHTML.append("function openCity(evt, cityName) {"+
@@ -466,53 +469,24 @@ public class IMSCPprocess {
 "    document.getElementById(cityName).style.display = \"block\";"+
 "    evt.currentTarget.className += \" active\";"+
 "}");
-		CodigoHTML.append("</script>");
-
-		CodigoHTML.append("	<div class=\"tab\">");
-		
-		
-		CodigoHTML.append("  <button class=\"tablinks\" onclick=\"openCity(event, 'London')\">London</button>");
-		CodigoHTML.append("  <button class=\"tablinks\" onclick=\"openCity(event, 'Paris')\">Paris</button>");
-		CodigoHTML.append("	  <button class=\"tablinks\" onclick=\"openCity(event, 'Tokyo')\">Tokyo</button>");
-		
-		
-		
-		
-		CodigoHTML.append("	</div>");
-
-		
-		
-		
-		CodigoHTML.append("	<div id=\"London\" class=\"tabcontent\">");
-		CodigoHTML.append("	  <h3>London</h3>");
-		CodigoHTML.append("	  <p>London is the capital city of England.</p>");
-		CodigoHTML.append("	</div>");
-
-		CodigoHTML.append("	<div id=\"Paris\" class=\"tabcontent\">");
-		CodigoHTML.append("	  <h3>Paris</h3>");
-		CodigoHTML.append(" <p>Paris is the capital of France.</p> ");
-		CodigoHTML.append("	</div>");
-
-		CodigoHTML.append("<div id=\"Tokyo\" class=\"tabcontent\">");
-		CodigoHTML.append("  <h3>Tokyo</h3>");
-		CodigoHTML.append("  <p>Tokyo is the capital of Japan.</p>");
-		CodigoHTML.append("	</div>");
 			
-		
+			CodigoHTML.append("function primeraTab() {");
+					CodigoHTML.append(" openCity(event, 'Document');");
+							CodigoHTML.append("}");
+							
+		CodigoHTML.append("</script>");
+	
 		HashMap<StringBuffer,String> Pesatanas=new HashMap<StringBuffer,String>();
 		ArrayList<StringBuffer> ListaPestanas=new ArrayList<StringBuffer>();
+		HashSet<String> ListaNomPestanas=new HashSet<String>();
 		
 		StringBuffer Document=new StringBuffer();
 		
 		Document.append("	<div id=\"Document\" class=\"tabcontent\">");
 		Pesatanas.put(Document, "Document");
 		ListaPestanas.add(Document);
+		ListaNomPestanas.add("Document");
 				
-			
-			CodigoHTML.append("<ul class\"_List LBody\">");
-			
-			CodigoHTML.append("<li class=\"_Document\"><span class=\"_Type Ident N_0\"> Document: </span><span class=\"Ident _Value N_0V\">"+completeDocuments.getClavilenoid()+"</span></li>");
-			CodigoHTML.append("<ul class=\"_List General\">");
 			Document.append("<ul class=\"_List General\">");
 			
 			File IconF=new File(SOURCE_FOLDER+File.separator+completeDocuments.getClavilenoid());
@@ -551,53 +525,121 @@ public class IMSCPprocess {
 			
 			 widthmini= 50;
 			 heightmini= (50*height)/width;
-			
-//			if (width=0)
-			
-			
-			CodigoHTML.append("<li> <span class=\"_Type Icon N_1\">Icon:</span> <img class=\"Icon _Value N_1V\" src=\""+completeDocuments.getClavilenoid()+File.separator+NameS+"\" onmouseover=\"this.width="+width+";this.height="+height+";\" onmouseout=\"this.width="+widthmini+";this.height="+heightmini+";\" width=\""+widthmini+"\" height=\""+heightmini+"\" alt=\""+Path+"\" /></li>");
-			CodigoHTML.append("<li> <span class=\"_Type Description N_2\">Description:</span> <span class=\"Description _Value N_0V\">"+completeDocuments.getDescriptionText()+"</span></li>");
-			
+
 			Document.append("<li> <span class=\"_Type Icon N_1\">Icon:</span> <img class=\"Icon _Value N_1V\" src=\""+completeDocuments.getClavilenoid()+File.separator+NameS+"\" onmouseover=\"this.width="+width+";this.height="+height+";\" onmouseout=\"this.width="+widthmini+";this.height="+heightmini+";\" width=\""+widthmini+"\" height=\""+heightmini+"\" alt=\""+Path+"\" /></li>");
 			Document.append("<li> <span class=\"_Type Description N_2\">Description:</span> <span class=\"Description _Value N_0V\">"+completeDocuments.getDescriptionText()+"</span></li>");
+			
+		
 			
 			for (CompleteGrammar completeGrammar : completeGrammarL) {
 
 				StringBuffer GrammarBuf=new StringBuffer();
 				
-				GrammarBuf.append("	<div id=\""+completeGrammar.getNombre()+"\" class=\"tabcontent\">");
-				Pesatanas.put(GrammarBuf, completeGrammar.getNombre());
+				String StringName=completeGrammar.getNombre();
+				int indi=0;
+				while (ListaNomPestanas.contains(StringName))
+				{
+					StringName=completeGrammar.getNombre()+indi;
+					indi++;
+				}
+				
+				GrammarBuf.append("	<div id=\""+StringName+"\" class=\"tabcontent\">");
+				Pesatanas.put(GrammarBuf, StringName);
 				ListaPestanas.add(GrammarBuf);
+				ListaNomPestanas.add(StringName);
+				
+				HashMap<Long,StringBuffer> Ignore=new HashMap<Long,StringBuffer>();
+				ArrayList<StringBuffer> openednoClose=new ArrayList<StringBuffer>();
 				
 				for (CompleteElementType completeST : completeGrammar.getSons()) {
-					String Salida = processST(completeST,completeDocuments,listaLinkeados,Pesatanas,ListaPestanas,GrammarBuf,true);
+					
+					
+					
+					if (!Valorable(completeST))
+					{
+						
+						if (!Ignore.containsKey(completeST.getClassOfIterator().getClavilenoid()))
+						{
+						
+							
+							
+						StringBuffer StructBuf=new StringBuffer();
+						
+						Ignore.put(completeST.getClassOfIterator().getClavilenoid(),StructBuf );
+						
+						String StringNameInt=completeST.getName();
+						int indiInt=0;
+						while (ListaNomPestanas.contains(StringNameInt))
+						{
+							StringNameInt=completeST.getName()+indiInt;
+							indiInt++;
+						}
+						
+						StructBuf.append("	<div id=\""+StringNameInt+"\" class=\"tabcontent\">");
+						Pesatanas.put(StructBuf, StringNameInt);
+						ListaPestanas.add(StructBuf);
+						ListaNomPestanas.add(StringName);
+						
+						String Salida = processST(completeST,completeDocuments,listaLinkeados);
+						if (!Salida.isEmpty())
+							StructBuf.append(Salida);
+						
+						openednoClose.add(StructBuf);
+						
+						}
+						else
+						{
+							StringBuffer StructBuf = Ignore.get(completeST.getClassOfIterator().getClavilenoid());
+							String Salida = processST(completeST,completeDocuments,listaLinkeados);
+							if (!Salida.isEmpty())
+								StructBuf.append(Salida);
+						}
+						
+					}
+					else
+					{
+					
+					String Salida = processST(completeST,completeDocuments,listaLinkeados);
 					if (!Salida.isEmpty())
-						CodigoHTML.append(Salida);
+						GrammarBuf.append(Salida);
+					}
 				}
 			
+				for (StringBuffer stringBuffer : openednoClose) {
+					stringBuffer.append("	</div>");
+				}
 				GrammarBuf.append("	</div>");
 		}
-			CodigoHTML.append("</ul>");
-			CodigoHTML.append("<br>");
-		
 			
-			CodigoHTML.append("</ul>");
-			CodigoHTML.append("</body>");
-			CodigoHTML.append("</html>");
 			
 			Document.append("	</div>");
 			
 			
 			CodigoHTML.append("	<div class=\"tab\">");
 			
+			boolean primero=true;
 			for (StringBuffer stringB : ListaPestanas) {
 				String Name = Pesatanas.get(stringB);
-				CodigoHTML.append("  <button class=\"tablinks\" onclick=\"openCity(event, '"+Name+"')\">"+Name+"</button>");
+				
+				String Extra = "";
+				if (primero)
+					{
+					Extra=" active";
+					primero=false;
+					}
+				
+				CodigoHTML.append("  <button class=\"tablinks"+Extra+"\" onclick=\"openCity(event, '"+Name+"')\">"+Name+"</button>");
 
 			}
 			
 			CodigoHTML.append("	</div>");
 		
+			
+			
+
+			CodigoHTML.append("</body>");
+			CodigoHTML.append("</html>");
+			
 			
 			for (StringBuffer stringB : ListaPestanas) 
 				CodigoHTML.append(stringB.toString());
@@ -759,9 +801,11 @@ public class IMSCPprocess {
 	}
 
 	private String processST(CompleteElementType completeST,
-			CompleteDocuments completeDocuments, HashSet<CompleteDocuments> listaLinkeados, HashMap<StringBuffer, String> pesatanas, ArrayList<StringBuffer> listaPestanas, StringBuffer bufferescritura, boolean ProcesaHijo) {
+			CompleteDocuments completeDocuments, HashSet<CompleteDocuments> listaLinkeados) {
 		StringBuffer StringSalida=new StringBuffer();
+//		StringBuffer Pestanadentro=new StringBuffer();
 		boolean Vacio=true;
+//		boolean ProcesaAparte=false;
 			CompleteElement E=findElem(completeST,completeDocuments.getDescription());
 			
 			
@@ -777,13 +821,13 @@ public class IMSCPprocess {
 			tipo=tipo+" N"+IDT;
 			
 			
+			
 			if (E!=null)
 				{
 				Vacio=false;
 				if (E instanceof CompleteTextElement)
 					{
 					StringSalida.append("<li> <span class=\"_Type "+tipo+"\">"+((CompleteElementType)completeST).getName()+":</span> <span class=\""+tipo+"V"+" _Value\">"+((CompleteTextElement)E).getValue()+"</span> </li>");
-					bufferescritura.append("<li> <span class=\"_Type "+tipo+"\">"+((CompleteElementType)completeST).getName()+":</span> <span class=\""+tipo+"V"+" _Value\">"+((CompleteTextElement)E).getValue()+"</span> </li>");
 					}
 				else if (E instanceof CompleteLinkElement)
 					{
@@ -841,12 +885,7 @@ public class IMSCPprocess {
 //							"<span class=\""+tipo+"V _ClavyID _Value\">" +Linked.getClavilenoid()+"</span>"+
 							"<span class=\""+tipo+"V _DescriptionRel _Value\">" +Linked.getDescriptionText()+"</span></li>");
 					
-					bufferescritura.append("<li> <span class=\"_Type "+tipo+"\">"+((CompleteElementType)completeST).getName()+":</span> <img class=\"_ImagenOV "+tipo+"V \" src=\""+
-							completeDocuments.getClavilenoid()+File.separator+NameS+
-							"\" onmouseover=\"this.width="+width+";this.height="+height+";\" onmouseout=\"this.width="+widthmini+";this.height="+heightmini+
-							";\" width=\""+widthmini+"\" height=\""+heightmini+"\" alt=\""+Path+"\" /> "+
-//							"<span class=\""+tipo+"V _ClavyID _Value\">" +Linked.getClavilenoid()+"</span>"+
-							"<span class=\""+tipo+"V _DescriptionRel _Value\">" +Linked.getDescriptionText()+"</span></li>");
+					
 					}
 					}
 				else if (E instanceof CompleteResourceElementURL)
@@ -859,9 +898,7 @@ public class IMSCPprocess {
 									+"<a class=\"_LinkedRef "+tipo+"V "+tipo+"A \" href=\""+Link+"\" target=\"_blank\">"
 									+Link+"</a></li>");
 					
-					bufferescritura.append("<li> <span class=\"_Type "+tipo+"\">"+((CompleteElementType)completeST).getName()+": </span>"
-							+"<a class=\"_LinkedRef "+tipo+"V "+tipo+"A \" href=\""+Link+"\" target=\"_blank\">"
-							+Link+"</a></li>");
+				
 					
 					}
 				else if (E instanceof CompleteResourceElementFile)
@@ -911,20 +948,16 @@ public class IMSCPprocess {
 									" onmouseover=\"this.width="+width+";this.height="+height+";\" onmouseout=\"this.width="+widthmini+";this.height="+heightmini+";\" width=\""+widthmini+"\" height=\""+heightmini+"\" alt=\""+Path+"\" />" +
 									"<a class=\"_LinkedRef "+tipo+"V "+tipo+"A  \" href=\""+completeDocuments.getClavilenoid()+File.separator+NameS+"\" target=\"_blank\">"+
 									NameS+"</a></li>");	
-					bufferescritura.append("<li> <span class=\"_Type "+tipo+"\">"+((CompleteElementType)completeST).getName()+":</span> " +
-							"File Linked -> <img class=\"_ImagenFile "+tipo+"V \" class=\"ImagenOV\" src=\""+completeDocuments.getClavilenoid()+File.separator+NameS+"\"" +
-							" onmouseover=\"this.width="+width+";this.height="+height+";\" onmouseout=\"this.width="+widthmini+";this.height="+heightmini+";\" width=\""+widthmini+"\" height=\""+heightmini+"\" alt=\""+Path+"\" />" +
-							"<a class=\"_LinkedRef "+tipo+"V "+tipo+"A  \" href=\""+completeDocuments.getClavilenoid()+File.separator+NameS+"\" target=\"_blank\">"+
-							NameS+"</a></li>");
-
+				
 					}
 				else 
 				{
 					if (completeST.isSelectable())
 						{
 						StringSalida.append("<li> <span class=\"_Value "+tipo+"\">"+((CompleteElementType)completeST).getName()+"</span></li>");
-						bufferescritura.append("<li> <span class=\"_Value "+tipo+"\">"+((CompleteElementType)completeST).getName()+"</span></li>");
+					
 						}
+
 
 				}
 //				else 
@@ -932,24 +965,28 @@ public class IMSCPprocess {
 				
 				}
 			else
+
 				Vacio=true;
+
 			
 			StringBuffer Hijos=new StringBuffer();
 			for (CompleteElementType hijo : completeST.getSons()) {
 				
-				String result2 = processST(hijo, completeDocuments,listaLinkeados,pesatanas,listaPestanas,bufferescritura,false);
+				String result2 = processST(hijo, completeDocuments,listaLinkeados);
 				
 				if (!result2.isEmpty())
 					Hijos.append(result2.toString());	
-			}
-			
+			}	
 			
 			String HijosSalida = Hijos.toString();
+			
+			
+
 			
 			if (!HijosSalida.isEmpty()&&Vacio)
 			{
 			StringSalida.append("<li> <span class=\"_Type "+tipo+"\">"+((CompleteElementType)completeST).getName()+":</span> </li>");
-			bufferescritura.append("<li> <span class=\"_Type "+tipo+"\">"+((CompleteElementType)completeST).getName()+":</span> </li>");
+			
 			}
 		
 		if (!HijosSalida.isEmpty())
@@ -960,7 +997,7 @@ public class IMSCPprocess {
 			}
 			
 
-	
+
 		
 		
 		return StringSalida.toString();
@@ -968,6 +1005,19 @@ public class IMSCPprocess {
 	}
 
 
+
+private boolean Valorable(CompleteElementType completeST) {
+		if (completeST instanceof CompleteTextElementType)
+			return true;
+		if (completeST instanceof CompleteLinkElementType)
+			return true;
+		if (completeST instanceof CompleteResourceElementType)
+			return true;
+		if (completeST instanceof CompleteTextElementType)
+			return true;
+		
+		return completeST.isSelectable();
+	}
 
 //	protected HashSet<Integer> calculaAmbitos(ArrayList<Integer> ambitos,
 //			CompleteElementType completeST, CompleteDocuments completeDocuments) {
