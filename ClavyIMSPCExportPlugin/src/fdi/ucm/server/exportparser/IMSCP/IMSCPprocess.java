@@ -81,16 +81,18 @@ public class IMSCPprocess {
 	private Element resources;
 	private HashMap<String, String> Recursos;
 	private int contadorRec;
+	private String TextoEntrada;
+	private int contadorFiles;
 	protected static final String CLAVY="OdAClavy";
 
-	public IMSCPprocess(Long listaDeDocumentos, CompleteCollection salvar, String sOURCE_FOLDER, CompleteLogAndUpdates cL) {
+	public IMSCPprocess(Long listaDeDocumentos, CompleteCollection salvar, String sOURCE_FOLDER, CompleteLogAndUpdates cL, String entradaText) {
 		
 		
 		DocumentoT=listaDeDocumentos;
 		Salvar=salvar;
 		SOURCE_FOLDER=sOURCE_FOLDER;
 		CL=cL;
-		
+		TextoEntrada=entradaText;
 		NameCSS=new HashMap<String,CompleteElementType>();
 	}
 
@@ -121,7 +123,7 @@ public class IMSCPprocess {
 		try {
 			
 			contadorRec=0;
-			
+			contadorFiles=0;
 			
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	        DocumentBuilder builder = factory.newDocumentBuilder();
@@ -283,7 +285,7 @@ public class IMSCPprocess {
 		        
 		     Element Title = document.createElement("title"); 
 		     Organization.appendChild(Title);
-		     Text nodeKeyValue = document.createTextNode(Salvar.getDescription());
+		     Text nodeKeyValue = document.createTextNode(TextoEntrada);
 		     Title.appendChild(nodeKeyValue);
 		     
 		    
@@ -455,7 +457,7 @@ public class IMSCPprocess {
 			CodigoHTML.append("</head>");  
 			CodigoHTML.append("<body onload=\"primeraTab()\">");
 			
-			CodigoHTML.append("<script>");
+			CodigoHTML.append("<script> \n");
 			CodigoHTML.append("function openCity(evt, cityName) {"+
 "    var i, tabcontent, tablinks; " +
 "    tabcontent = document.getElementsByClassName(\"tabcontent\");"+
@@ -468,7 +470,7 @@ public class IMSCPprocess {
 "    }"+
 "    document.getElementById(cityName).style.display = \"block\";"+
 "    evt.currentTarget.className += \" active\";"+
-"}");
+"} \n");
 			
 			CodigoHTML.append("function primeraTab() {");
 					CodigoHTML.append(" openCity(event, 'Document');");
@@ -637,14 +639,16 @@ public class IMSCPprocess {
 			
 			
 
-			CodigoHTML.append("</body>");
-			CodigoHTML.append("</html>");
+		
 			
 			
 			for (StringBuffer stringB : ListaPestanas) 
 				CodigoHTML.append(stringB.toString());
 			//AQUI METER TODO
 			
+			
+			CodigoHTML.append("</body>");
+			CodigoHTML.append("</html>");
 			
 			return creaLaWeb(CodigoHTML,Long.toString(completeDocuments.getClavilenoid()));
 	}
@@ -683,7 +687,7 @@ public class IMSCPprocess {
 			Atr.setValue("en-US");
 			Lan.setAttributeNode(Atr);
 			
-			Text nodeKeyValue = document.createTextNode(completeDocuments.getDescriptionText());
+			Text nodeKeyValue = document.createTextNode(TextoEntrada);
 			Lan.appendChild(nodeKeyValue);
 		}
 		
@@ -753,6 +757,11 @@ public class IMSCPprocess {
 			 
 			Writer out = new BufferedWriter(new OutputStreamWriter(
 				new FileOutputStream(fileDir), "UTF8"));
+
+			
+//			String html = CodigoHTML.toString()
+//			org.jsoup.nodes.Document doc = Jsoup.parseBodyFragment(html);
+//			String SalidaHTML=doc.body().html();
 			
 			out.append(CodigoHTML.toString());
 	 
@@ -892,6 +901,64 @@ public class IMSCPprocess {
 					{
 					String Link = ((CompleteResourceElementURL)E).getValue();
 							
+					
+					if (StaticFunctionsIMSCP.isimage(Link.toLowerCase()))
+					{
+						String Path=StaticFunctionsIMSCP.calculaIconoString(Link);
+						
+						
+						String[] spliteStri=Path.split("/");
+						String NameS = spliteStri[spliteStri.length-1];
+						String Icon=SOURCE_FOLDER+File.separator+completeDocuments.getClavilenoid()+File.separator+NameS;
+						
+						File test=new File(Icon);
+						while (test.exists())
+							{
+							NameS = "rep_"+(contadorFiles++)+spliteStri[spliteStri.length-1];
+							
+							Icon=SOURCE_FOLDER+File.separator+completeDocuments.getClavilenoid()+File.separator+NameS;
+							
+							test=new File(Icon);
+							}
+						
+						try {
+							URL url2 = new URL(Path);
+							 URI uri2 = new URI(url2.getProtocol(), url2.getUserInfo(), url2.getHost(), url2.getPort(), url2.getPath(), url2.getQuery(), url2.getRef());
+							 url2 = uri2.toURL();
+							
+							saveImage(url2, Icon);
+						} catch (Exception e) {
+							CL.getLogLines().add("Error in Icon copy, file with url ->> "+Link+" not found or restringed");
+						}
+						
+						int width= 50;
+						int height=50;
+						int widthmini= 50;
+						int heightmini=50;
+						
+						try {
+							BufferedImage bimg = ImageIO.read(new File(SOURCE_FOLDER+File.separator+completeDocuments.getClavilenoid()+File.separator+NameS));
+							width= bimg.getWidth();
+							height= bimg.getHeight();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						
+						
+						 widthmini= 50;
+						 heightmini= (50*height)/width;
+						
+						 StringSalida.append("<li> <span class=\"_Type "+tipo+"\">"+((CompleteElementType)completeST).getName()+":</span> " +
+//									"File Linked ->"+
+									"<a class=\"_LinkedRef "+tipo+"V "+tipo+"A  \" href=\""+completeDocuments.getClavilenoid()+File.separator+NameS+"\" target=\"_blank\">"+
+									" <img class=\"_ImagenFile "+tipo+"V \" class=\"ImagenOV\" src=\""+completeDocuments.getClavilenoid()+File.separator+NameS+"\"" +
+											" onmouseover=\"this.width="+width+";this.height="+height+";\" onmouseout=\"this.width="+widthmini+";this.height="+heightmini+";\" width=\""+widthmini+"\" height=\""+heightmini+"\" alt=\""+Path+"\" />" +
+											"</a></li>");	
+					
+					}
+					else
+					{
+					
 							if (!testLink(Link))
 								Link="http://"+Link;
 					StringSalida.append("<li> <span class=\"_Type "+tipo+"\">"+((CompleteElementType)completeST).getName()+": </span>"
@@ -899,7 +966,7 @@ public class IMSCPprocess {
 									+Link+"</a></li>");
 					
 				
-					
+					}
 					}
 				else if (E instanceof CompleteResourceElementFile)
 					{
@@ -915,6 +982,18 @@ public class IMSCPprocess {
 					String[] spliteStri=Path.split("/");
 					String NameS = spliteStri[spliteStri.length-1];
 					String Icon=SOURCE_FOLDER+File.separator+completeDocuments.getClavilenoid()+File.separator+NameS;
+				
+					
+					File test=new File(Icon);
+					while (test.exists())
+						{
+						NameS = "rep_"+(contadorFiles++)+spliteStri[spliteStri.length-1];
+						
+						Icon=SOURCE_FOLDER+File.separator+completeDocuments.getClavilenoid()+File.separator+NameS;
+						
+						test=new File(Icon);
+						}
+					
 					
 					try {
 						URL url2 = new URL(Path);
@@ -944,10 +1023,11 @@ public class IMSCPprocess {
 					 heightmini= (50*height)/width;
 					
 					StringSalida.append("<li> <span class=\"_Type "+tipo+"\">"+((CompleteElementType)completeST).getName()+":</span> " +
-							"File Linked -> <img class=\"_ImagenFile "+tipo+"V \" class=\"ImagenOV\" src=\""+completeDocuments.getClavilenoid()+File.separator+NameS+"\"" +
+//							"File Linked ->"+
+							"<a class=\"_LinkedRef "+tipo+"V "+tipo+"A  \" href=\""+completeDocuments.getClavilenoid()+File.separator+NameS+"\" target=\"_blank\">"+
+							" <img class=\"_ImagenFile "+tipo+"V \" class=\"ImagenOV\" src=\""+completeDocuments.getClavilenoid()+File.separator+NameS+"\"" +
 									" onmouseover=\"this.width="+width+";this.height="+height+";\" onmouseout=\"this.width="+widthmini+";this.height="+heightmini+";\" width=\""+widthmini+"\" height=\""+heightmini+"\" alt=\""+Path+"\" />" +
-									"<a class=\"_LinkedRef "+tipo+"V "+tipo+"A  \" href=\""+completeDocuments.getClavilenoid()+File.separator+NameS+"\" target=\"_blank\">"+
-									NameS+"</a></li>");	
+									"</a></li>");	
 				
 					}
 				else 

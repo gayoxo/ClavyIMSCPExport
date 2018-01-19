@@ -37,6 +37,7 @@ public class IMSCPSaveCollection extends SaveCollection {
 	private Long DocumentoRaiz;
 	private String OUTPUT_ZIP_FILE = "";
 	private String SOURCE_FOLDER = ""; // SourceFolder path
+	private String EntradaText;
 	private static final Pattern regexAmbito = Pattern.compile("^[0-9]+$");
 	
 	/**
@@ -64,7 +65,7 @@ public class IMSCPSaveCollection extends SaveCollection {
 			Dir.mkdirs();
 			
 			
-			IMSCPprocess baseProcess= new IMSCPprocess(DocumentoRaiz,Salvar,SOURCE_FOLDER,CL);	
+			IMSCPprocess baseProcess= new IMSCPprocess(DocumentoRaiz,Salvar,SOURCE_FOLDER,CL,EntradaText);	
 			baseProcess.preocess();
 				
 			fileList = new ArrayList<String>();
@@ -120,6 +121,7 @@ public class IMSCPSaveCollection extends SaveCollection {
 		if (Parametros==null)
 		{
 			ArrayList<ImportExportPair> ListaCampos=new ArrayList<ImportExportPair>();
+			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Text, "Name for de Learning Lesson",true));
 			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Document, "Document Base for de Learning Lesson",true));
 			Parametros=ListaCampos;
 			return ListaCampos;
@@ -131,8 +133,9 @@ public class IMSCPSaveCollection extends SaveCollection {
 	public void setConfiguracion(ArrayList<String> DateEntrada) {
 		if (DateEntrada!=null)
 		{
+			EntradaText=DateEntrada.get(0).trim();
 			
-			String Entrada=DateEntrada.get(0).trim();
+			String Entrada=DateEntrada.get(1).trim();
 			if (Entrada.endsWith(","))
 				Entrada=Entrada.substring(0, Entrada.length()-1);
 			
