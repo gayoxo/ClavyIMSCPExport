@@ -26,14 +26,14 @@ import fdi.ucm.server.modelComplete.collection.CompleteLogAndUpdates;
  * @author Joaquin Gayoso-Cabada
  *
  */
-public class IMSCPSaveCollection extends SaveCollection {
+public class IMSCPSaveCollectionMultiple extends SaveCollection {
 
 	private static final String IMSCP = "IMS CP";
 	private ArrayList<ImportExportPair> Parametros;
 	private String Path;
 	private String FileIO;
 	private List<String> fileList; 
-	private Long DocumentoRaiz;
+	private List<Long> DocumentoRaiz;
 	private String OUTPUT_ZIP_FILE = "";
 	private String SOURCE_FOLDER = ""; // SourceFolder path
 	private String EntradaText;
@@ -42,7 +42,7 @@ public class IMSCPSaveCollection extends SaveCollection {
 	/**
 	 * Constructor por defecto
 	 */
-		public IMSCPSaveCollection() {
+		public IMSCPSaveCollectionMultiple() {
 	}
 
 	/* (non-Javadoc)
@@ -64,10 +64,7 @@ public class IMSCPSaveCollection extends SaveCollection {
 			Dir.mkdirs();
 			
 			
-			ArrayList<Long> Entrada = new ArrayList<Long>();
-			Entrada.add(DocumentoRaiz);
-			
-			IMSCPprocess baseProcess= new IMSCPprocess(Entrada,Salvar,SOURCE_FOLDER,CL,EntradaText);	
+			IMSCPprocess baseProcess= new IMSCPprocess(DocumentoRaiz,Salvar,SOURCE_FOLDER,CL,EntradaText);	
 			baseProcess.preocess();
 				
 			fileList = new ArrayList<String>();
@@ -150,17 +147,18 @@ public class IMSCPSaveCollection extends SaveCollection {
 	}
 		
 
-	private Long generaListaDocuments(String string) {
+	private List<Long> generaListaDocuments(String string) {
 		String[] strings=string.split(",");
+		ArrayList<Long> Salida = new ArrayList<Long>();
 		for (String string2 : strings) {
 			try {
 				Long N=Long.parseLong(string2);
-				return N;
+				Salida.add(N);
 			} catch (Exception e) {
 				// handle exception
 			}
 		}
-		return null;
+		return Salida;
 	}
 
 	@Override

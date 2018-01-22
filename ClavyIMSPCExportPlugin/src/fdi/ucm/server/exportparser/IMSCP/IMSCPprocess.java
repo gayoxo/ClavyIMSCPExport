@@ -70,7 +70,7 @@ public class IMSCPprocess {
 
 
 	protected static final String EXPORTTEXT = "Export HTML RESULT";
-	protected Long DocumentoT;
+	protected List<Long> DocumentoT;
 	protected CompleteCollection Salvar;
 	protected String SOURCE_FOLDER;
 	protected CompleteLogAndUpdates CL;
@@ -84,8 +84,9 @@ public class IMSCPprocess {
 	private String TextoEntrada;
 	private int contadorFiles;
 	protected static final String CLAVY="OdAClavy";
+	protected HashMap<Long,String> TablaHTML;
 
-	public IMSCPprocess(Long listaDeDocumentos, CompleteCollection salvar, String sOURCE_FOLDER, CompleteLogAndUpdates cL, String entradaText) {
+	public IMSCPprocess(List<Long> listaDeDocumentos, CompleteCollection salvar, String sOURCE_FOLDER, CompleteLogAndUpdates cL, String entradaText) {
 		
 		
 		DocumentoT=listaDeDocumentos;
@@ -94,25 +95,25 @@ public class IMSCPprocess {
 		CL=cL;
 		TextoEntrada=entradaText;
 		NameCSS=new HashMap<String,CompleteElementType>();
+		TablaHTML=new HashMap<Long, String>();
 	}
 
 	public void preocess() {
 		
 		String SN=Long.toString(System.nanoTime());
 		
-		CompleteDocuments completeDocuments = null;
+		List<CompleteDocuments> completeDocuments = new ArrayList<CompleteDocuments>();
 		
 		for (CompleteDocuments docuemntos : Salvar.getEstructuras()) {
-			if (docuemntos.getClavilenoid().equals(DocumentoT))
+			if (DocumentoT.contains(docuemntos.getClavilenoid()))
 			{
-			completeDocuments=docuemntos;
-			break;
+			completeDocuments.add(docuemntos);
 			}
 		}
 		
 		
 
-		if (completeDocuments==null)
+		if (completeDocuments.isEmpty())
 			{
 			CL.getLogLines().add("Error, documento no existe");
 			return;
@@ -132,17 +133,6 @@ public class IMSCPprocess {
 	        document.setXmlVersion("1.0");
 	        
 	        ArrayList<CompleteGrammar> GramaticasAProcesar=ProcesaGramaticas(Salvar.getMetamodelGrammar());
-			ArrayList<CompleteGrammar> completeGrammarL=new ArrayList<CompleteGrammar>();
-			
-
-			
-			
-			for (CompleteGrammar completeGrammar : GramaticasAProcesar) {
-				if (StaticFunctionsIMSCP.isInGrammar(completeDocuments,completeGrammar))
-					completeGrammarL.add(completeGrammar);
-			
-			
-			}
 	        
 	        Element manifest = document.getDocumentElement();
 	        
@@ -191,8 +181,8 @@ public class IMSCPprocess {
 	        manifest.appendChild(organizations);
 	        manifest.appendChild(resources);
 	        
-	        processMetadata(completeDocuments,document);
-	        String Main_S=processOrganization(completeDocuments,document,completeGrammarL);
+	        processMetadata(document);
+	        String Main_S=processOrganization(completeDocuments,document,GramaticasAProcesar);
 	        {
 				Attr Atr = document.createAttribute("default");
 				Atr.setValue(Main_S);
@@ -264,9 +254,9 @@ public class IMSCPprocess {
 		
 	}
 
-	private String processOrganization(CompleteDocuments completeDocuments, Document document,ArrayList<CompleteGrammar> GramaticasAplicadas) {
+	private String processOrganization(List<CompleteDocuments> completeDocumentsList, Document document,ArrayList<CompleteGrammar> GramaticasAProcesar) {
 			
-			String NameBlock="MAIN_TOC"+completeDocuments.getClavilenoid();
+			String NameBlock="MAIN_TOC"+completeDocumentsList.get(0).getClavilenoid();
 			
 			Element Organization = document.createElement("organization"); 
 			organizations.appendChild(Organization);
@@ -288,6 +278,17 @@ public class IMSCPprocess {
 		     Text nodeKeyValue = document.createTextNode(TextoEntrada);
 		     Title.appendChild(nodeKeyValue);
 		     
+		     
+		     for (CompleteDocuments completeDocuments : completeDocumentsList) {
+		     
+		     ArrayList<CompleteGrammar> GramaticasAplicadas=new ArrayList<CompleteGrammar>();
+		     
+		     for (CompleteGrammar completeGrammar : GramaticasAProcesar) {
+					if (StaticFunctionsIMSCP.isInGrammar(completeDocuments,completeGrammar))
+						GramaticasAplicadas.add(completeGrammar);
+				
+				
+				}
 		    
 		     
 		     for (CompleteGrammar completeGrammar : GramaticasAplicadas) {
@@ -354,7 +355,7 @@ public class IMSCPprocess {
 		     
 		     
 		     
-		     
+		     }
 		     
 		     
 		
@@ -433,6 +434,13 @@ public class IMSCPprocess {
 	private String ProcessFileHTML(CompleteDocuments completeDocuments,ArrayList<CompleteGrammar> completeGrammarL, HashSet<CompleteDocuments> listaLinkeados) {
 		
 		
+		
+		String SalidaWeb=TablaHTML.get(completeDocuments.getClavilenoid());
+		if (SalidaWeb!=null)
+			return SalidaWeb;
+		
+		
+			
 		
 //TODO AQUI HAY QUE SACAR LA LISTA DE LOS IMPLICADOS
 //		List<CompleteElement> listaElem = completeDocuments.getDescription();
@@ -650,10 +658,17 @@ public class IMSCPprocess {
 			CodigoHTML.append("</body>");
 			CodigoHTML.append("</html>");
 			
-			return creaLaWeb(CodigoHTML,Long.toString(completeDocuments.getClavilenoid()));
+			
+			SalidaWeb=creaLaWeb(CodigoHTML,Long.toString(completeDocuments.getClavilenoid()));
+			TablaHTML.put(completeDocuments.getClavilenoid(), SalidaWeb);
+			
+		
+		return SalidaWeb;
+			
+//			return creaLaWeb(CodigoHTML,Long.toString(completeDocuments.getClavilenoid()));
 	}
 
-	private void processMetadata(CompleteDocuments completeDocuments, Document document) {
+	private void processMetadata(Document document) {
 		{
 			Element keyNode = document.createElement("schema"); 
             Text nodeKeyValue = document.createTextNode("IMS Content");	
