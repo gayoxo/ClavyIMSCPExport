@@ -121,7 +121,7 @@ public class IMSCPSaveCollectionMultiple extends SaveCollection {
 		{
 			ArrayList<ImportExportPair> ListaCampos=new ArrayList<ImportExportPair>();
 			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Text, "Name for de Learning Lesson",true));
-			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Document, "Document Base for de Learning Lesson",true));
+			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Documents, "Lit of documents Base for de Learning Lesson",true));
 			Parametros=ListaCampos;
 			return ListaCampos;
 		}
