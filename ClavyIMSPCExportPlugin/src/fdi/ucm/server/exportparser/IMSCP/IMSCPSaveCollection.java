@@ -123,8 +123,8 @@ public class IMSCPSaveCollection extends SaveCollection {
 		if (Parametros==null)
 		{
 			ArrayList<ImportExportPair> ListaCampos=new ArrayList<ImportExportPair>();
-			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Text, "Name for de Learning Lesson",true));
-			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Document, "Document Base for de Learning Lesson",true));
+			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Text, "Name for de Learning Lesson",false));
+			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Document, "Document Base for de Learning Lesson",false));
 			Parametros=ListaCampos;
 			return ListaCampos;
 		}

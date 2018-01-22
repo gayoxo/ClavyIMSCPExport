@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,7 +29,7 @@ import fdi.ucm.server.modelComplete.collection.CompleteLogAndUpdates;
  */
 public class IMSCPSaveCollectionMultiple extends SaveCollection {
 
-	private static final String IMSCP = "IMS CP";
+	private static final String IMSCP = "IMS CP (Multiple)";
 	private ArrayList<ImportExportPair> Parametros;
 	private String Path;
 	private String FileIO;
@@ -63,6 +64,7 @@ public class IMSCPSaveCollectionMultiple extends SaveCollection {
 			File Dir=new File(SOURCE_FOLDER);
 			Dir.mkdirs();
 			
+			System.out.println(Arrays.toString(DocumentoRaiz.toArray()));
 			
 			IMSCPprocess baseProcess= new IMSCPprocess(DocumentoRaiz,Salvar,SOURCE_FOLDER,CL,EntradaText);	
 			baseProcess.preocess();
@@ -120,8 +122,8 @@ public class IMSCPSaveCollectionMultiple extends SaveCollection {
 		if (Parametros==null)
 		{
 			ArrayList<ImportExportPair> ListaCampos=new ArrayList<ImportExportPair>();
-			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Text, "Name for de Learning Lesson",true));
-			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Documents, "Lit of documents Base for de Learning Lesson",true));
+			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Text, "Name for de Learning Lesson",false));
+			ListaCampos.add(new ImportExportPair(ImportExportDataEnum.Documents, "List of documents Base for de Learning Lesson (Ctrl multisect)",false));
 			Parametros=ListaCampos;
 			return ListaCampos;
 		}
@@ -134,7 +136,11 @@ public class IMSCPSaveCollectionMultiple extends SaveCollection {
 		{
 			EntradaText=DateEntrada.get(0).trim();
 			
+			
+			
 			String Entrada=DateEntrada.get(1).trim();
+			
+			System.out.println(Entrada);
 			if (Entrada.endsWith(","))
 				Entrada=Entrada.substring(0, Entrada.length()-1);
 			
