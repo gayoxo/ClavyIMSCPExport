@@ -1074,7 +1074,7 @@ public class IMSCPprocess {
 			StringBuffer Hijos=new StringBuffer();
 			for (CompleteElementType hijo : completeST.getSons()) {
 				
-				String result2 = proces€sST(hijo, completeDocuments,listaLinkeados);
+				String result2 = processST(hijo, completeDocuments,listaLinkeados);
 				
 				if (!result2.isEmpty())
 					Hijos.append(result2.toString());	
