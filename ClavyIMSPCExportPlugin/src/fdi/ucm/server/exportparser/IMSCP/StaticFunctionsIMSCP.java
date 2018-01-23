@@ -7,6 +7,7 @@ import fdi.ucm.server.modelComplete.collection.document.CompleteDocuments;
 import fdi.ucm.server.modelComplete.collection.document.CompleteElement;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteElementType;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteGrammar;
+import fdi.ucm.server.modelComplete.collection.grammar.CompleteOperationalValueType;
 
 
 
@@ -162,6 +163,15 @@ public class StaticFunctionsIMSCP {
 		else
 				
 		return false;
+	}
+
+	public static boolean isVisible(CompleteElementType completeST) {
+		for (CompleteOperationalValueType show : completeST.getShows()) {
+			if (show.getView().toLowerCase().equals("imscp")&&show.getName().toLowerCase().equals("visible"))
+				return !show.getDefault().toLowerCase().equals("false");
+				
+		}
+		return true;
 	}
 
 }

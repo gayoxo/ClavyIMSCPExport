@@ -563,7 +563,8 @@ public class IMSCPprocess {
 				
 				for (CompleteElementType completeST : completeGrammar.getSons()) {
 					
-					
+					if (StaticFunctionsIMSCP.isVisible(completeST))
+					{
 					
 					if (!Valorable(completeST))
 					{
@@ -612,6 +613,8 @@ public class IMSCPprocess {
 					String Salida = processST(completeST,completeDocuments,listaLinkeados);
 					if (!Salida.isEmpty())
 						GrammarBuf.append(Salida);
+					}
+					
 					}
 				}
 			
@@ -826,6 +829,10 @@ public class IMSCPprocess {
 
 	private String processST(CompleteElementType completeST,
 			CompleteDocuments completeDocuments, HashSet<CompleteDocuments> listaLinkeados) {
+		
+		if (!StaticFunctionsIMSCP.isVisible(completeST))
+			return "";
+		
 		StringBuffer StringSalida=new StringBuffer();
 //		StringBuffer Pestanadentro=new StringBuffer();
 		boolean Vacio=true;
@@ -1067,7 +1074,7 @@ public class IMSCPprocess {
 			StringBuffer Hijos=new StringBuffer();
 			for (CompleteElementType hijo : completeST.getSons()) {
 				
-				String result2 = processST(hijo, completeDocuments,listaLinkeados);
+				String result2 = proces€sST(hijo, completeDocuments,listaLinkeados);
 				
 				if (!result2.isEmpty())
 					Hijos.append(result2.toString());	

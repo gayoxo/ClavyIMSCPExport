@@ -144,7 +144,7 @@ public class IMSCPSaveCollection extends SaveCollection {
 			if (testList(Entrada))
 				DocumentoRaiz=generaListaDocuments(Entrada);
 			else
-				throw new CompleteImportRuntimeException("List of Documents can not be normal, list should be like this \"####,####,####\"");
+				throw new CompleteImportRuntimeException("List of Documents can not be normal, list should be like this \"####\"");
 
 		}
 	}
