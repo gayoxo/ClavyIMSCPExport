@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -85,6 +86,8 @@ public class IMSCPprocess {
 	private int contadorFiles;
 	protected static final String CLAVY="OdAClavy";
 	protected HashMap<Long,String> TablaHTML;
+	private HashSet<CompleteDocuments> ProcesadosGeneral;
+	private int contador_IDs;
 
 	public IMSCPprocess(List<Long> listaDeDocumentos, CompleteCollection salvar, String sOURCE_FOLDER, CompleteLogAndUpdates cL, String entradaText) {
 		
@@ -100,16 +103,16 @@ public class IMSCPprocess {
 
 	public void preocess() {
 		
+		ProcesadosGeneral=new HashSet<CompleteDocuments>();
+		
 		String SN=Long.toString(System.nanoTime());
 		
-		List<CompleteDocuments> completeDocuments = new ArrayList<CompleteDocuments>();
+		LinkedList<CompleteDocuments> completeDocuments = new LinkedList<CompleteDocuments>();
 		
-		for (CompleteDocuments docuemntos : Salvar.getEstructuras()) {
+		for (CompleteDocuments docuemntos : Salvar.getEstructuras())
 			if (DocumentoT.contains(docuemntos.getClavilenoid()))
-			{
-			completeDocuments.add(docuemntos);
-			}
-		}
+			completeDocuments.addFirst(docuemntos);
+	
 		
 		
 
@@ -125,6 +128,7 @@ public class IMSCPprocess {
 			
 			contadorRec=0;
 			contadorFiles=0;
+			contador_IDs=0;
 			
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	        DocumentBuilder builder = factory.newDocumentBuilder();
@@ -254,7 +258,7 @@ public class IMSCPprocess {
 		
 	}
 
-	private String processOrganization(List<CompleteDocuments> completeDocumentsList, Document document,ArrayList<CompleteGrammar> GramaticasAProcesar) {
+	private String processOrganization(LinkedList<CompleteDocuments> completeDocumentsList, Document document,ArrayList<CompleteGrammar> GramaticasAProcesar) {
 			
 			String NameBlock="MAIN_TOC"+completeDocumentsList.get(0).getClavilenoid();
 			
@@ -278,8 +282,41 @@ public class IMSCPprocess {
 		     Text nodeKeyValue = document.createTextNode(TextoEntrada);
 		     Title.appendChild(nodeKeyValue);
 		     
+		     Element ItemList = document.createElement("item"); 
+		     Organization.appendChild(ItemList);
 		     
-		     for (CompleteDocuments completeDocuments : completeDocumentsList) {
+		     Element TitleIL = document.createElement("title"); 
+		     ItemList.appendChild(TitleIL);
+
+			     Text nodeKeyValueTiL = document.createTextNode("Total List");
+			     TitleIL.appendChild(nodeKeyValueTiL);
+			     
+			     {
+				        Attr Atr = document.createAttribute("identifier");
+				        Atr.setValue("Total List");
+				        ItemList.setAttributeNode(Atr);
+				        }
+				        
+				        {
+				      
+				        String MAINSTR="MAIN_RESOURCE"+(contadorRec);	
+					    Attr Atr = document.createAttribute("identifierref");
+					    Atr.setValue(MAINSTR);
+					    ItemList.setAttributeNode(Atr);
+					    }
+		     
+			     
+			     HashMap<CompleteGrammar,HashSet<CompleteDocuments>> Gram_doc=new HashMap<CompleteGrammar, HashSet<CompleteDocuments>>();
+		     
+		     while (!completeDocumentsList.isEmpty())
+		     {
+		    	 CompleteDocuments completeDocuments =completeDocumentsList.removeLast();
+		    	 
+		    	 if (!ProcesadosGeneral.contains(completeDocuments))
+		    	{
+		    	 ProcesadosGeneral.add(completeDocuments);
+//		     }
+//		     for (CompleteDocuments completeDocuments : completeDocumentsList) {
 		     
 		     ArrayList<CompleteGrammar> GramaticasAplicadas=new ArrayList<CompleteGrammar>();
 		     
@@ -293,12 +330,27 @@ public class IMSCPprocess {
 		     
 		     for (CompleteGrammar completeGrammar : GramaticasAplicadas) {
 		    	 
+		    	 
+		    	 HashSet<CompleteDocuments> DocGram=Gram_doc.get(completeGrammar);
+		    	 
+		    	 if (DocGram==null)
+		    		 DocGram=new HashSet<CompleteDocuments>();
+		    	 
+		    	 DocGram.add(completeDocuments);
+		    	 
+		    	 Gram_doc.put(completeGrammar, DocGram);
+		    	 
+		    	 
+		    	 
 		    	 HashSet<CompleteDocuments> ListaLinkeados=new HashSet<CompleteDocuments>();
 		    	 HashSet<CompleteDocuments> Procesados = new HashSet<CompleteDocuments>();
 		    	 Procesados.add(completeDocuments);
 		    	 
+		    	 
+			     
+		    	 
 		    	 Element Item = document.createElement("item"); 
-			     Organization.appendChild(Item);
+		    	 ItemList.appendChild(Item);
 			     
 			     {
 				        Attr Atr = document.createAttribute("identifier");
@@ -319,7 +371,7 @@ public class IMSCPprocess {
 				        Element TitleI = document.createElement("title"); 
 				        Item.appendChild(TitleI);
 				        
-				        String CuterTiyle=completeDocuments.getDescriptionText();
+				        String CuterTiyle=completeGrammar.getNombre()+": "+completeDocuments.getDescriptionText();
 				        if (CuterTiyle.length()>55)
 				        	CuterTiyle=CuterTiyle.substring(0, 50)+"...";
 				        
@@ -345,7 +397,7 @@ public class IMSCPprocess {
 									}
 									
 									
-									processItem(Item,completedocHijo,completeGrammarLHijo,document,Procesados);
+									processItem(Item,completedocHijo,completeGrammarLHijo,document,Procesados,completeDocumentsList);
 									
 								}
 							}
@@ -353,9 +405,130 @@ public class IMSCPprocess {
 					     
 			}
 		     
-		     
+		     }
 		     
 		     }
+		     
+		     
+		     for (Entry<CompleteGrammar, HashSet<CompleteDocuments>> grupillo : Gram_doc.entrySet()) {
+		    	 Element ItemListG = document.createElement("item"); 
+			     Organization.appendChild(ItemListG);
+			     
+			     Element TitleILG = document.createElement("title"); 
+			     ItemListG.appendChild(TitleILG);
+
+				     Text nodeKeyValueTiLG = document.createTextNode("List of: "+grupillo.getKey().getNombre());
+				     TitleILG.appendChild(nodeKeyValueTiLG);
+				     
+				     
+				     {
+					        Attr Atr = document.createAttribute("identifier");
+					        Atr.setValue("List of: "+grupillo.getKey().getNombre()+(contador_IDs++));
+					        ItemListG.setAttributeNode(Atr);
+					        }
+					        
+					        {
+					      
+					        String MAINSTR="MAIN_RESOURCE"+(contadorRec);	
+						    Attr Atr = document.createAttribute("identifierref");
+						    Atr.setValue(MAINSTR);
+						    ItemListG.setAttributeNode(Atr);
+						    }
+
+				    	
+//				     }
+				     for (CompleteDocuments completeDocuments : grupillo.getValue()) {
+				     
+				     ArrayList<CompleteGrammar> GramaticasAplicadas=new ArrayList<CompleteGrammar>();
+				     
+				     for (CompleteGrammar completeGrammar : GramaticasAProcesar) {
+							if (StaticFunctionsIMSCP.isInGrammar(completeDocuments,completeGrammar))
+								GramaticasAplicadas.add(completeGrammar);
+						
+						
+						}
+				    
+				     
+				     for (CompleteGrammar completeGrammar : GramaticasAplicadas) {
+				    	 
+				    	 
+//				    	 HashSet<CompleteDocuments> DocGram=Gram_doc.get(completeGrammar);
+//				    	 
+//				    	 if (DocGram==null)
+//				    		 DocGram=new HashSet<CompleteDocuments>();
+//				    	 
+//				    	 DocGram.add(completeDocuments);
+//				    	 
+//				    	 Gram_doc.put(completeGrammar, DocGram);
+				    	 
+				    	 
+				    	 
+				    	 HashSet<CompleteDocuments> ListaLinkeados=new HashSet<CompleteDocuments>();
+				    	 HashSet<CompleteDocuments> Procesados = new HashSet<CompleteDocuments>();
+				    	 Procesados.add(completeDocuments);
+				    	 
+				    	 
+					     
+				    	 
+				    	 Element Item = document.createElement("item"); 
+				    	 ItemListG.appendChild(Item);
+					     
+					     {
+						        Attr Atr = document.createAttribute("identifier");
+						        Atr.setValue(completeGrammar.getNombre()+": "+completeDocuments.getClavilenoid());
+						        Item.setAttributeNode(Atr);
+						        }
+						        
+						        {
+						      
+						        String MAINSTR="MAIN_RESOURCE"+(contadorRec++);	
+						        String Recurso=ProcessFileHTML(completeDocuments,GramaticasAplicadas,ListaLinkeados);
+							    Attr Atr = document.createAttribute("identifierref");
+							    Atr.setValue(MAINSTR);
+							    Item.setAttributeNode(Atr);
+							    Recursos.put(MAINSTR, Recurso);
+							    }
+						        
+						        Element TitleI = document.createElement("title"); 
+						        Item.appendChild(TitleI);
+						        
+						        String CuterTiyle=completeGrammar.getNombre()+": "+completeDocuments.getDescriptionText();
+						        if (CuterTiyle.length()>55)
+						        	CuterTiyle=CuterTiyle.substring(0, 50)+"...";
+						        
+							     Text nodeKeyValueTi = document.createTextNode(CuterTiyle);
+							     TitleI.appendChild(nodeKeyValueTi);
+							     
+							     
+							     for (CompleteDocuments completedocHijo : ListaLinkeados) {
+										if (!Procesados.contains(completedocHijo))
+										{
+											Procesados.add(completedocHijo);
+											ArrayList<CompleteGrammar> GramaticasAProcesarHijo=ProcesaGramaticas(Salvar.getMetamodelGrammar());
+											ArrayList<CompleteGrammar> completeGrammarLHijo=new ArrayList<CompleteGrammar>();
+											
+
+											
+											
+											for (CompleteGrammar completeGrammar2 : GramaticasAProcesarHijo) {
+												if (StaticFunctionsIMSCP.isInGrammar(completedocHijo,completeGrammar2))
+													completeGrammarLHijo.add(completeGrammar2);
+											
+											
+											}
+											
+											
+											processItem(Item,completedocHijo,completeGrammarLHijo,document,Procesados,completeDocumentsList);
+											
+										}
+									}
+							     
+							     
+					}
+				     
+				     }
+				     
+			}
 		     
 		     
 		
@@ -367,7 +540,7 @@ public class IMSCPprocess {
 
 
 	private void processItem(Element item, CompleteDocuments completeDocuments,
-			ArrayList<CompleteGrammar> GramaticasAplicadas, Document document, HashSet<CompleteDocuments> procesados) {
+			ArrayList<CompleteGrammar> GramaticasAplicadas, Document document, HashSet<CompleteDocuments> procesados, LinkedList<CompleteDocuments> completeDocumentsList) {
 		 for (CompleteGrammar completeGrammar : GramaticasAplicadas) {
 	    	 
 	    	 HashSet<CompleteDocuments> ListaLinkeados=new HashSet<CompleteDocuments>();
@@ -404,6 +577,9 @@ public class IMSCPprocess {
 				     
 				     
 				     for (CompleteDocuments completedocHijo : ListaLinkeados) {
+				    	 
+				    	 completeDocumentsList.add(completedocHijo);
+				    	 
 							if (!Procesados.contains(completedocHijo))
 							{
 								Procesados.add(completedocHijo);
@@ -421,7 +597,7 @@ public class IMSCPprocess {
 								}
 								
 								
-								processItem(Item,completedocHijo,completeGrammarLHijo,document,Procesados);
+								processItem(Item,completedocHijo,completeGrammarLHijo,document,Procesados,completeDocumentsList);
 								
 							}
 						}
