@@ -88,6 +88,7 @@ public class IMSCPprocess {
 	protected HashMap<Long,String> TablaHTML;
 	private HashSet<CompleteDocuments> ProcesadosGeneral;
 	private int contador_IDs;
+	private HashMap<CompleteGrammar, HashSet<CompleteDocuments>> Gram_doc;
 
 	public IMSCPprocess(List<Long> listaDeDocumentos, CompleteCollection salvar, String sOURCE_FOLDER, CompleteLogAndUpdates cL, String entradaText) {
 		
@@ -306,7 +307,7 @@ public class IMSCPprocess {
 					    }
 		     
 			     
-			     HashMap<CompleteGrammar,HashSet<CompleteDocuments>> Gram_doc=new HashMap<CompleteGrammar, HashSet<CompleteDocuments>>();
+			   Gram_doc=new HashMap<CompleteGrammar, HashSet<CompleteDocuments>>();
 		     
 		     while (!completeDocumentsList.isEmpty())
 		     {
@@ -546,6 +547,17 @@ public class IMSCPprocess {
 	    	 HashSet<CompleteDocuments> ListaLinkeados=new HashSet<CompleteDocuments>();
 	    	 HashSet<CompleteDocuments> Procesados=new HashSet<CompleteDocuments>(procesados);
 	    	 
+	    	 
+	    	 HashSet<CompleteDocuments> DocGram=Gram_doc.get(completeGrammar);
+	    	 
+	    	 if (DocGram==null)
+	    		 DocGram=new HashSet<CompleteDocuments>();
+	    	 
+	    	 DocGram.add(completeDocuments);
+	    	 
+	    	 Gram_doc.put(completeGrammar, DocGram);
+	    	 
+	    	 
 	    	 Element Item = document.createElement("item"); 
 	    	 item.appendChild(Item);
 		     
@@ -595,6 +607,10 @@ public class IMSCPprocess {
 								
 								
 								}
+								
+								
+								 
+						    	
 								
 								
 								processItem(Item,completedocHijo,completeGrammarLHijo,document,Procesados,completeDocumentsList);
