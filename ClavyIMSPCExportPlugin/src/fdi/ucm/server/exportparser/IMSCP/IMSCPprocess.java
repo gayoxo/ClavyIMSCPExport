@@ -639,9 +639,11 @@ public class IMSCPprocess {
 	private String ProcessFileHTML(CompleteDocuments completeDocuments,List<CompleteGrammar> completeGrammarL, HashSet<CompleteDocuments> listaLinkeados) {
 		
 		String SalidaWeb=TablaHTML.get(completeDocuments.getClavilenoid());
-		listaLinkeados=TablaHTMLLink.get(completeDocuments.getClavilenoid());
 		if (SalidaWeb!=null)
+			{
+			listaLinkeados=TablaHTMLLink.get(completeDocuments.getClavilenoid());
 			return SalidaWeb;
+			}
 		
 
 		
