@@ -582,7 +582,7 @@ public class IMSCPprocess {
 			        Element TitleI = document.createElement("title"); 
 			        Item.appendChild(TitleI);
 			        
-			        String CuterTiyle=completeDocuments.getDescriptionText();
+			        String CuterTiyle=completeGrammar.getNombre()+": "+completeDocuments.getDescriptionText();
 			        if (CuterTiyle.length()>55)
 			        	CuterTiyle=CuterTiyle.substring(0, 50)+"...";
 			        
@@ -629,9 +629,7 @@ public class IMSCPprocess {
 		
 		
 		
-		String SalidaWeb=TablaHTML.get(completeDocuments.getClavilenoid());
-		if (SalidaWeb!=null)
-			return SalidaWeb;
+
 		
 		
 
@@ -863,6 +861,11 @@ public class IMSCPprocess {
 			CodigoHTML.append("</html>");
 			
 			
+			String SalidaWeb=TablaHTML.get(completeDocuments.getClavilenoid());
+			if (SalidaWeb!=null)
+				return SalidaWeb;
+			
+			//Else
 			SalidaWeb=creaLaWeb(CodigoHTML,Long.toString(completeDocuments.getClavilenoid()));
 			TablaHTML.put(completeDocuments.getClavilenoid(), SalidaWeb);
 			
