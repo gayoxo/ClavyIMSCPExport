@@ -87,6 +87,7 @@ public class IMSCPprocess {
 	private int contadorFiles;
 	protected static final String CLAVY="OdAClavy";
 	protected HashMap<Long,String> TablaHTML;
+	protected HashMap<Long,HashSet<CompleteDocuments>> TablaHTMLLink;
 	private HashSet<CompleteDocuments> ProcesadosGeneral;
 	private int contador_IDs;
 	private HashMap<CompleteGrammar, HashSet<CompleteDocuments>> Gram_doc;
@@ -101,6 +102,7 @@ public class IMSCPprocess {
 		TextoEntrada=entradaText;
 		NameCSS=new HashMap<String,CompleteElementType>();
 		TablaHTML=new HashMap<Long, String>();
+		TablaHTMLLink=new HashMap<Long, HashSet<CompleteDocuments>>();
 	}
 
 	public void preocess() {
@@ -636,7 +638,10 @@ public class IMSCPprocess {
 
 	private String ProcessFileHTML(CompleteDocuments completeDocuments,List<CompleteGrammar> completeGrammarL, HashSet<CompleteDocuments> listaLinkeados) {
 		
-		
+		String SalidaWeb=TablaHTML.get(completeDocuments.getClavilenoid());
+		listaLinkeados=TablaHTMLLink.get(completeDocuments.getClavilenoid());
+		if (SalidaWeb!=null)
+			return SalidaWeb;
 		
 
 		
@@ -870,13 +875,12 @@ public class IMSCPprocess {
 			CodigoHTML.append("</html>");
 			
 			
-			String SalidaWeb=TablaHTML.get(completeDocuments.getClavilenoid());
-			if (SalidaWeb!=null)
-				return SalidaWeb;
+			
 			
 			//Else
 			SalidaWeb=creaLaWeb(CodigoHTML,Long.toString(completeDocuments.getClavilenoid()));
 			TablaHTML.put(completeDocuments.getClavilenoid(), SalidaWeb);
+			TablaHTMLLink.put(completeDocuments.getClavilenoid(), listaLinkeados);
 			
 		
 		return SalidaWeb;
