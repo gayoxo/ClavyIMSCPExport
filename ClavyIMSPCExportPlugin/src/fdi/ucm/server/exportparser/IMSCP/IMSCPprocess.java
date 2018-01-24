@@ -260,7 +260,9 @@ public class IMSCPprocess {
 		
 	}
 
-	private String processOrganization(LinkedList<CompleteDocuments> completeDocumentsList, Document document,ArrayList<CompleteGrammar> GramaticasAProcesar) {
+	private String processOrganization(
+			LinkedList<CompleteDocuments> completeDocumentsList, 
+			Document document,ArrayList<CompleteGrammar> GramaticasAProcesar) {
 			
 			String NameBlock="MAIN_TOC"+completeDocumentsList.get(0).getClavilenoid();
 			
@@ -342,7 +344,13 @@ public class IMSCPprocess {
 		    	 
 		    	 Gram_doc.put(completeGrammar, DocGram);
 		    	 
-		    	 
+		     } 
+		     
+		     
+		     String Grammarname="ungrammar";
+	    	 if (GramaticasAplicadas.size()>0)
+	    		 Grammarname=GramaticasAplicadas.get(0).getNombre();
+		     
 		    	 
 		    	 HashSet<CompleteDocuments> ListaLinkeados=new HashSet<CompleteDocuments>();
 		    	 HashSet<CompleteDocuments> Procesados = new HashSet<CompleteDocuments>();
@@ -356,7 +364,7 @@ public class IMSCPprocess {
 			     
 			     {
 				        Attr Atr = document.createAttribute("identifier");
-				        Atr.setValue(completeGrammar.getNombre()+": "+completeDocuments.getClavilenoid()+"_"+contador_IDs++);
+				        Atr.setValue(Grammarname+": "+completeDocuments.getClavilenoid()+"_"+contador_IDs++);
 				        Item.setAttributeNode(Atr);
 				        }
 				        
@@ -373,7 +381,7 @@ public class IMSCPprocess {
 				        Element TitleI = document.createElement("title"); 
 				        Item.appendChild(TitleI);
 				        
-				        String CuterTiyle=completeGrammar.getNombre()+": "+completeDocuments.getDescriptionText();
+				        String CuterTiyle=Grammarname+": "+completeDocuments.getDescriptionText();
 				        if (CuterTiyle.length()>55)
 				        	CuterTiyle=CuterTiyle.substring(0, 50)+"...";
 				        
@@ -399,10 +407,10 @@ public class IMSCPprocess {
 									}
 									
 									
-									processItem(Item,completedocHijo,completeGrammarLHijo,document,Procesados,completeDocumentsList);
+									processItem(Item,completedocHijo,completeGrammarLHijo,document,Procesados);
 									
 								}
-							}
+							
 					     
 					     
 			}
@@ -442,17 +450,6 @@ public class IMSCPprocess {
 //				     }
 				     for (CompleteDocuments completeDocuments : grupillo.getValue()) {
 				     
-				     ArrayList<CompleteGrammar> GramaticasAplicadas=new ArrayList<CompleteGrammar>();
-				     
-				     for (CompleteGrammar completeGrammar : GramaticasAProcesar) {
-							if (StaticFunctionsIMSCP.isInGrammar(completeDocuments,completeGrammar))
-								GramaticasAplicadas.add(completeGrammar);
-						
-						
-						}
-				    
-				     
-				     for (CompleteGrammar completeGrammar : GramaticasAplicadas) {
 				    	 
 				    	 
 //				    	 HashSet<CompleteDocuments> DocGram=Gram_doc.get(completeGrammar);
@@ -478,14 +475,16 @@ public class IMSCPprocess {
 					     
 					     {
 						        Attr Atr = document.createAttribute("identifier");
-						        Atr.setValue(completeGrammar.getNombre()+"_"+completeGrammar.getNombre()+": "+completeDocuments.getClavilenoid()+"_"+contador_IDs++);
+						        Atr.setValue(grupillo.getKey().getNombre()+"_"+grupillo.getKey().getNombre()+": "+completeDocuments.getClavilenoid()+"_"+contador_IDs++);
 						        Item.setAttributeNode(Atr);
 						        }
 						        
 						        {
 						      
 						        String MAINSTR="MAIN_RESOURCE"+(contadorRec++);	
-						        String Recurso=ProcessFileHTML(completeDocuments,GramaticasAplicadas,ListaLinkeados);
+						        List<CompleteGrammar> lista=new ArrayList<>();
+						        lista.add(grupillo.getKey());
+						        String Recurso=ProcessFileHTML(completeDocuments,lista,ListaLinkeados);
 							    Attr Atr = document.createAttribute("identifierref");
 							    Atr.setValue(MAINSTR);
 							    Item.setAttributeNode(Atr);
@@ -495,7 +494,7 @@ public class IMSCPprocess {
 						        Element TitleI = document.createElement("title"); 
 						        Item.appendChild(TitleI);
 						        
-						        String CuterTiyle=completeGrammar.getNombre()+": "+completeDocuments.getDescriptionText();
+						        String CuterTiyle=grupillo.getKey().getNombre()+": "+completeDocuments.getDescriptionText();
 						        if (CuterTiyle.length()>55)
 						        	CuterTiyle=CuterTiyle.substring(0, 50)+"...";
 						        
@@ -521,10 +520,10 @@ public class IMSCPprocess {
 											}
 											
 											
-											processItem(Item,completedocHijo,completeGrammarLHijo,document,Procesados,completeDocumentsList);
+											processItem(Item,completedocHijo,completeGrammarLHijo,document,Procesados);
 											
 										}
-									}
+
 							     
 							     
 					}
@@ -543,12 +542,16 @@ public class IMSCPprocess {
 
 
 	private void processItem(Element item, CompleteDocuments completeDocuments,
-			ArrayList<CompleteGrammar> GramaticasAplicadas, Document document, HashSet<CompleteDocuments> procesados, LinkedList<CompleteDocuments> completeDocumentsList) {
-		 for (CompleteGrammar completeGrammar : GramaticasAplicadas) {
+			ArrayList<CompleteGrammar> GramaticasAplicadas, Document document, HashSet<CompleteDocuments> procesados) {
+		
 	    	 
 	    	 HashSet<CompleteDocuments> ListaLinkeados=new HashSet<CompleteDocuments>();
 	    	 HashSet<CompleteDocuments> Procesados=new HashSet<CompleteDocuments>(procesados);
 	    	 
+	    	 
+	    	 
+	    	 
+	    	 for (CompleteGrammar completeGrammar : GramaticasAplicadas) {
 	    	 
 	    	 HashSet<CompleteDocuments> DocGram=Gram_doc.get(completeGrammar);
 	    	 
@@ -559,13 +562,20 @@ public class IMSCPprocess {
 	    	 
 	    	 Gram_doc.put(completeGrammar, DocGram);
 	    	 
+	    	 }
+	    	 
+	    	 String Grammarname="ungrammar";
+	    	 if (GramaticasAplicadas.size()>0)
+	    		 Grammarname=GramaticasAplicadas.get(0).getNombre();
+	    	 
+	    	 
 	    	 
 	    	 Element Item = document.createElement("item"); 
 	    	 item.appendChild(Item);
 		     
 		     {
 			        Attr Atr = document.createAttribute("identifier");
-			        Atr.setValue(completeGrammar.getNombre() +": " +completeDocuments.getClavilenoid()+"_"+contador_IDs++);
+			        Atr.setValue(Grammarname +": " +completeDocuments.getClavilenoid()+"_"+contador_IDs++);
 			        Item.setAttributeNode(Atr);
 			        }
 			        
@@ -582,7 +592,7 @@ public class IMSCPprocess {
 			        Element TitleI = document.createElement("title"); 
 			        Item.appendChild(TitleI);
 			        
-			        String CuterTiyle=completeGrammar.getNombre()+": "+completeDocuments.getDescriptionText();
+			        String CuterTiyle=Grammarname+": "+completeDocuments.getDescriptionText();
 			        if (CuterTiyle.length()>55)
 			        	CuterTiyle=CuterTiyle.substring(0, 50)+"...";
 			        
@@ -592,7 +602,6 @@ public class IMSCPprocess {
 				     
 				     for (CompleteDocuments completedocHijo : ListaLinkeados) {
 				    	 
-				    	 completeDocumentsList.add(completedocHijo);
 				    	 
 							if (!Procesados.contains(completedocHijo))
 							{
@@ -615,17 +624,17 @@ public class IMSCPprocess {
 						    	
 								
 								
-								processItem(Item,completedocHijo,completeGrammarLHijo,document,Procesados,completeDocumentsList);
+								processItem(Item,completedocHijo,completeGrammarLHijo,document,Procesados);
 								
 							}
-						}
+						
 				     
 				     
 		}
 		
 	}
 
-	private String ProcessFileHTML(CompleteDocuments completeDocuments,ArrayList<CompleteGrammar> completeGrammarL, HashSet<CompleteDocuments> listaLinkeados) {
+	private String ProcessFileHTML(CompleteDocuments completeDocuments,List<CompleteGrammar> completeGrammarL, HashSet<CompleteDocuments> listaLinkeados) {
 		
 		
 		
