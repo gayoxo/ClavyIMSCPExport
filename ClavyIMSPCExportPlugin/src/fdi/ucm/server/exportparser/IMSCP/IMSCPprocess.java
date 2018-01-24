@@ -356,7 +356,7 @@ public class IMSCPprocess {
 			     
 			     {
 				        Attr Atr = document.createAttribute("identifier");
-				        Atr.setValue(completeGrammar.getNombre()+": "+completeDocuments.getClavilenoid());
+				        Atr.setValue(completeGrammar.getNombre()+": "+completeDocuments.getClavilenoid()+"_"+contador_IDs++);
 				        Item.setAttributeNode(Atr);
 				        }
 				        
@@ -478,7 +478,7 @@ public class IMSCPprocess {
 					     
 					     {
 						        Attr Atr = document.createAttribute("identifier");
-						        Atr.setValue(completeGrammar.getNombre()+"_"+completeGrammar.getNombre()+": "+completeDocuments.getClavilenoid());
+						        Atr.setValue(completeGrammar.getNombre()+"_"+completeGrammar.getNombre()+": "+completeDocuments.getClavilenoid()+"_"+contador_IDs++);
 						        Item.setAttributeNode(Atr);
 						        }
 						        
@@ -565,7 +565,7 @@ public class IMSCPprocess {
 		     
 		     {
 			        Attr Atr = document.createAttribute("identifier");
-			        Atr.setValue(completeGrammar.getNombre() +": " +completeDocuments.getClavilenoid());
+			        Atr.setValue(completeGrammar.getNombre() +": " +completeDocuments.getClavilenoid()+"_"+contador_IDs++);
 			        Item.setAttributeNode(Atr);
 			        }
 			        
