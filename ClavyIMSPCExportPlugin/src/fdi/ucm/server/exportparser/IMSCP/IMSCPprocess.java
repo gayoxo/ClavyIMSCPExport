@@ -641,7 +641,7 @@ public class IMSCPprocess {
 		String SalidaWeb=TablaHTML.get(completeDocuments.getClavilenoid());
 		if (SalidaWeb!=null)
 			{
-			listaLinkeados=TablaHTMLLink.get(completeDocuments.getClavilenoid());
+			listaLinkeados.addAll(TablaHTMLLink.get(completeDocuments.getClavilenoid()));
 			return SalidaWeb;
 			}
 		
@@ -1369,10 +1369,15 @@ public class IMSCPprocess {
 			StringBuffer Hijos=new StringBuffer();
 			for (CompleteElementType hijo : completeST.getSons()) {
 				
+				if (StaticFunctionsIMSCP.isVisible(completeST))
+				{
+				
 				String result2 = processST(hijo, completeDocuments,listaLinkeados);
 				
 				if (!result2.isEmpty())
-					Hijos.append(result2.toString());	
+					Hijos.append(result2.toString());
+				
+				}
 			}	
 			
 			String HijosSalida = Hijos.toString();
