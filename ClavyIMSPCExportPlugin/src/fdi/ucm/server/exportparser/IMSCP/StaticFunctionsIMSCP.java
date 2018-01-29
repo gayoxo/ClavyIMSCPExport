@@ -178,7 +178,7 @@ public class StaticFunctionsIMSCP {
 	public static boolean isMap(CompleteElementType completeST) {
 		for (CompleteOperationalValueType show : completeST.getShows()) {
 			if (show.getView().toLowerCase().equals("clavy")&&show.getName().toLowerCase().equals("editor"))
-				return !show.getDefault().toLowerCase().equals("gmaps");
+				return show.getDefault().toLowerCase().equals("gmaps");
 				
 		}
 		return false;
@@ -193,7 +193,10 @@ public class StaticFunctionsIMSCP {
 				{
 				for (CompleteElement completeElement : description) {
 					if (completeElement.getHastype().getClavilenoid().equals(elemtyh.getClavilenoid()))
+						{
 						latitudV=true;
+						break;
+						}
 				}
 				}
 			
@@ -201,7 +204,10 @@ public class StaticFunctionsIMSCP {
 			{
 			for (CompleteElement completeElement : description) {
 				if (completeElement.getHastype().getClavilenoid().equals(elemtyh.getClavilenoid()))
+					{
 					longitudV=true;
+					break;
+					}
 			}
 			}
 		}
@@ -212,7 +218,7 @@ public class StaticFunctionsIMSCP {
 	public static boolean isLatitude(CompleteElementType completeST) {
 		for (CompleteOperationalValueType show : completeST.getShows()) {
 			if (show.getView().toLowerCase().equals("clavy")&&show.getName().toLowerCase().equals("gmaps"))
-				return !show.getDefault().toLowerCase().equals("latitude");
+				return show.getDefault().toLowerCase().equals("latitude");
 				
 		}
 		return false;
@@ -221,20 +227,20 @@ public class StaticFunctionsIMSCP {
 	public static boolean isLongitude(CompleteElementType completeST) {
 		for (CompleteOperationalValueType show : completeST.getShows()) {
 			if (show.getView().toLowerCase().equals("clavy")&&show.getName().toLowerCase().equals("gmaps"))
-				return !show.getDefault().toLowerCase().equals("longitude");
+				return show.getDefault().toLowerCase().equals("longitude");
 				
 		}
 		return false;
 	}
 
-	public static java.lang.Long getLat(List<CompleteElementType> sons,
+	public static java.lang.Double getLat(List<CompleteElementType> sons,
 			CompleteDocuments completeDocuments) {
 		try {
 			for (CompleteElementType elemtyh : sons) {
 				if (isLatitude(elemtyh))
 					for (CompleteElement completeElement : completeDocuments.getDescription()) {
 						if (completeElement.getHastype().getClavilenoid().equals(elemtyh.getClavilenoid()))
-							return Long.parseLong(((CompleteTextElement)completeElement).getValue());
+							return Double.parseDouble(((CompleteTextElement)completeElement).getValue());
 					}
 			}
 		} catch (Exception e) {
@@ -243,14 +249,14 @@ public class StaticFunctionsIMSCP {
 		return null;
 	}
 	
-	public static java.lang.Long getLong(List<CompleteElementType> sons,
+	public static java.lang.Double getLong(List<CompleteElementType> sons,
 			CompleteDocuments completeDocuments) {
 		try {
 			for (CompleteElementType elemtyh : sons) {
 				if (isLongitude(elemtyh))
 					for (CompleteElement completeElement : completeDocuments.getDescription()) {
 						if (completeElement.getHastype().getClavilenoid().equals(elemtyh.getClavilenoid()))
-							return Long.parseLong(((CompleteTextElement)completeElement).getValue());
+							return Double.parseDouble(((CompleteTextElement)completeElement).getValue());
 					}
 			}
 		} catch (Exception e) {

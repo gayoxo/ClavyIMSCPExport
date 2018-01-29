@@ -686,16 +686,18 @@ public class IMSCPprocess {
 //			CodigoHTML.append("<style>");
 //			CodigoHTML.append("li.doc {color: blue;}");	
 //			CodigoHTML.append("</style>");
-			CodigoHTML.append("</head>"); 
-			CodigoHTML.append("<script type=\"text/javascript\" src=\"https://maps.googleapis.com/maps/api/js?key=AIzaSyBPj8iz7libsW74GvKYCU7VdtggaOA8814&amp;v=3&amp;sensor=true&amp;libraries=places\"></script>");
+			CodigoHTML.append("<script type=\"text/javascript\" src=\"https://maps.googleapis.com/maps/api/js?key=AIzaSyBPj8iz7libsW74GvKYCU7VdtggaOA8814&amp;v=3&sensor=true&libraries=places\"></script> \n");
 			CodigoHTML.append("<script src=\"http://maps.google.com/maps/api/js\"></script> \n"+
   "<script src=\"gmaps.js\"></script> \n"+
   "<style type=\"text/css\"> \n"+
-  " #map { \n"+
-  "    width: 100%; \n"+
-  "    height: 400px; \n"+
+  " .map { \n"+
+  "    width: 100% !important; \n"+
+  "    height: 400px !important; \n"+
   "  } \n"+
   "</style>");
+			
+			CodigoHTML.append("</head> \n"); 
+			
 			CodigoHTML.append("<body onload=\"primeraTab()\">");
 			
 			CodigoHTML.append("<script> \n");
@@ -711,6 +713,7 @@ public class IMSCPprocess {
 "    }"+
 "    document.getElementById(cityName).style.display = \"block\";"+
 "    evt.currentTarget.className += \" active\";"+
+"map.refresh();"+
 "} \n");
 			
 			CodigoHTML.append("function primeraTab() {");
@@ -811,8 +814,8 @@ public class IMSCPprocess {
 					if (StaticFunctionsIMSCP.isMap(completeST)&&StaticFunctionsIMSCP.hasValuedChildren(completeST,completeDocuments.getDescription()))	
 					{
 						
-						Long Lat;
-						Long Long;
+						Double Lat;
+						Double Long;
 						
 						Lat=StaticFunctionsIMSCP.getLat(completeST.getSons(),completeDocuments);
 						Long=StaticFunctionsIMSCP.getLong(completeST.getSons(),completeDocuments);
@@ -822,15 +825,15 @@ public class IMSCPprocess {
 						{
 						String mapOrderString="map"+nummap++;
 						//CASO MAPAS
-						StringBuffer StructBuf=new StringBuffer();
-						StructBuf.append("	<div id=\""+mapOrderString+"\" class=\"mapcontent\">");
-						StructBuf.append("<script> \n"+
+						GrammarBuf.append("	<div id=\""+mapOrderString+"\" class=\"map\">");
+						GrammarBuf.append("	</div>");
+						GrammarBuf.append("<script> \n"+
 					    "var map = new GMaps({ \n"+
-					    "el: '"+mapOrderString+"', \n"+
+					    "el: '#"+mapOrderString+"', \n"+
 					    "lat: "+Lat+", \n"+
-					    "lng: "+Long+" \n"+
-					    "}); \n"+
-					  "</script>");
+					    "lng: "+Long+", \n"+
+					    "zoom: 10 \n"+
+						"}); \n");
 						
 						StringBuffer StructBufH = new StringBuffer();
 						
@@ -850,14 +853,16 @@ public class IMSCPprocess {
 						StructBufH.append("	</div>");
 						
 						
-						StructBuf.append("map.addMarker({ \n"+
+						GrammarBuf.append("map.addMarker({ \n"+
 						"lat: "+Lat+", \n"+
 						"lng: "+Long+", \n"+
 						"infoWindow: { \n"+
 						"	  content: '"+StructBufH.toString()+"'\n"+
 						"	}\n"+
 						"});");
-						openednoClose.add(StructBuf);
+						
+						GrammarBuf.append("</script>");
+						
 						}
 					}
 					else if (!Valorable(completeST))
@@ -1450,39 +1455,39 @@ public class IMSCPprocess {
 			StringBuffer Hijos=new StringBuffer();
 			for (CompleteElementType hijo : completeST.getSons()) {
 				
-				if (StaticFunctionsIMSCP.isVisible(completeST))
+				if (StaticFunctionsIMSCP.isVisible(hijo))
 				{
 				
 					
-					if (StaticFunctionsIMSCP.isMap(completeST)&&StaticFunctionsIMSCP.hasValuedChildren(completeST,completeDocuments.getDescription()))	
+					if (StaticFunctionsIMSCP.isMap(hijo)&&StaticFunctionsIMSCP.hasValuedChildren(hijo,completeDocuments.getDescription()))	
 					{
 						
-						Long Lat;
-						Long Long;
+						Double Lat;
+						Double Long;
 						
-						Lat=StaticFunctionsIMSCP.getLat(completeST.getSons(),completeDocuments);
-						Long=StaticFunctionsIMSCP.getLong(completeST.getSons(),completeDocuments);
+						Lat=StaticFunctionsIMSCP.getLat(hijo.getSons(),completeDocuments);
+						Long=StaticFunctionsIMSCP.getLong(hijo.getSons(),completeDocuments);
 						
 						if (Lat!=null&&Long!=null)
 						
 						{
 						String mapOrderString="map"+nummap++;
 						//CASO MAPAS
-						StringBuffer StructBuf=new StringBuffer();
-						StructBuf.append("	<div id=\""+mapOrderString+"\" class=\"mapcontent\">");
-						StructBuf.append("<script> \n"+
+						
+						StringSalida.append("	<div id=\""+mapOrderString+"\" class=\"map\">");
+						StringSalida.append("<script> \n"+
 					    "var map = new GMaps({ \n"+
-					    "el: '"+mapOrderString+"', \n"+
+					    "el: '#"+mapOrderString+"', \n"+
 					    "lat: "+Lat+", \n"+
-					    "lng: "+Long+" \n"+
-					    "}); \n"+
-					  "</script>");
+					    "lng: "+Long+", \n"+
+					    "zoom: 10 \n"+
+					    "}); \n");
 						
 						StringBuffer StructBufH = new StringBuffer();
 						
-						StructBufH.append("	<div id=\""+mapOrderString+"\" class=\"hijomap\">");
+						StructBufH.append("	<div class=\"hijomap\">");
 						
-						for (CompleteElementType CETY : completeST.getSons()) {
+						for (CompleteElementType CETY : hijo.getSons()) {
 							if (!StaticFunctionsIMSCP.isLatitude(CETY)&&!StaticFunctionsIMSCP.isLongitude(CETY))
 							{
 								String Salida = processST(CETY,completeDocuments,listaLinkeados);
@@ -1496,15 +1501,17 @@ public class IMSCPprocess {
 						StructBufH.append("	</div>");
 						
 						
-						StructBuf.append("map.addMarker({ \n"+
+						StringSalida.append("map.addMarker({ \n"+
 						"lat: "+Lat+", \n"+
 						"lng: "+Long+", \n"+
 						"infoWindow: { \n"+
-						"	  content: '"+StructBufH.toString()+"'\n"+
+						"	  content: '"+StructBufH.toString()+"'"+
 						"	}\n"+
 						"});");
 						
-						StructBuf.append("	</div>");
+						StringSalida.append("</script>");
+						
+						StringSalida.append("	</div>");
 
 						}
 					}
