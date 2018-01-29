@@ -17,6 +17,8 @@ import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -217,7 +219,12 @@ public class IMSCPprocess {
 		
 		
 		
-		
+		try {
+			IncludeJSMAPS();
+		} catch (IOException e) {
+			CL.getLogLines().add(e.getLocalizedMessage());
+			e.printStackTrace();
+		}
 		creaLACSS();
 		
 		
@@ -225,6 +232,15 @@ public class IMSCPprocess {
 
 
 	
+	private void IncludeJSMAPS() throws IOException {
+		URL website = new URL("https://raw.githubusercontent.com/HPNeo/gmaps/master/gmaps.js");
+		ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+		FileOutputStream fos = new FileOutputStream(SOURCE_FOLDER+File.separator+"gmaps.js");
+		fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+		fos.close();
+		
+	}
+
 	private void processResources(Document document) {
 		for (Entry<String, String> recursotable : Recursos.entrySet()) {
 			Element ResourceUni = document.createElement("resource"); 
@@ -668,7 +684,15 @@ public class IMSCPprocess {
 //			CodigoHTML.append("<style>");
 //			CodigoHTML.append("li.doc {color: blue;}");	
 //			CodigoHTML.append("</style>");
-			CodigoHTML.append("</head>");  
+			CodigoHTML.append("</head>"); 
+			CodigoHTML.append("<script src=\"http://maps.google.com/maps/api/js\"></script> \n"+
+  "<script src=\"gmaps.js\"></script> \n"+
+  "<style type=\"text/css\"> \n"+
+  " #map { \n"+
+  "    width: 400px; \n"+
+  "    height: 400px; \n"+
+  "  } \n"+
+  "</style>");
 			CodigoHTML.append("<body onload=\"primeraTab()\">");
 			
 			CodigoHTML.append("<script> \n");
