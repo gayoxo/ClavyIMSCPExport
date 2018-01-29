@@ -5,6 +5,7 @@ import java.util.List;
 
 import fdi.ucm.server.modelComplete.collection.document.CompleteDocuments;
 import fdi.ucm.server.modelComplete.collection.document.CompleteElement;
+import fdi.ucm.server.modelComplete.collection.document.CompleteTextElement;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteElementType;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteGrammar;
 import fdi.ucm.server.modelComplete.collection.grammar.CompleteOperationalValueType;
@@ -172,6 +173,90 @@ public class StaticFunctionsIMSCP {
 				
 		}
 		return true;
+	}
+
+	public static boolean isMap(CompleteElementType completeST) {
+		for (CompleteOperationalValueType show : completeST.getShows()) {
+			if (show.getView().toLowerCase().equals("clavy")&&show.getName().toLowerCase().equals("editor"))
+				return !show.getDefault().toLowerCase().equals("gmaps");
+				
+		}
+		return false;
+	}
+
+	public static boolean hasValuedChildren(CompleteElementType completeST,
+			List<CompleteElement> description) {
+		boolean latitudV=false;
+		boolean longitudV=false;
+		for (CompleteElementType elemtyh : completeST.getSons()) {
+			if (isLatitude(elemtyh))
+				{
+				for (CompleteElement completeElement : description) {
+					if (completeElement.getHastype().getClavilenoid().equals(elemtyh.getClavilenoid()))
+						latitudV=true;
+				}
+				}
+			
+			if (isLongitude(elemtyh))
+			{
+			for (CompleteElement completeElement : description) {
+				if (completeElement.getHastype().getClavilenoid().equals(elemtyh.getClavilenoid()))
+					longitudV=true;
+			}
+			}
+		}
+		
+		return latitudV&&longitudV;
+	}
+
+	public static boolean isLatitude(CompleteElementType completeST) {
+		for (CompleteOperationalValueType show : completeST.getShows()) {
+			if (show.getView().toLowerCase().equals("clavy")&&show.getName().toLowerCase().equals("gmaps"))
+				return !show.getDefault().toLowerCase().equals("latitude");
+				
+		}
+		return false;
+	}
+
+	public static boolean isLongitude(CompleteElementType completeST) {
+		for (CompleteOperationalValueType show : completeST.getShows()) {
+			if (show.getView().toLowerCase().equals("clavy")&&show.getName().toLowerCase().equals("gmaps"))
+				return !show.getDefault().toLowerCase().equals("longitude");
+				
+		}
+		return false;
+	}
+
+	public static java.lang.Long getLat(List<CompleteElementType> sons,
+			CompleteDocuments completeDocuments) {
+		try {
+			for (CompleteElementType elemtyh : sons) {
+				if (isLatitude(elemtyh))
+					for (CompleteElement completeElement : completeDocuments.getDescription()) {
+						if (completeElement.getHastype().getClavilenoid().equals(elemtyh.getClavilenoid()))
+							return Long.parseLong(((CompleteTextElement)completeElement).getValue());
+					}
+			}
+		} catch (Exception e) {
+			return null;
+		}
+		return null;
+	}
+	
+	public static java.lang.Long getLong(List<CompleteElementType> sons,
+			CompleteDocuments completeDocuments) {
+		try {
+			for (CompleteElementType elemtyh : sons) {
+				if (isLongitude(elemtyh))
+					for (CompleteElement completeElement : completeDocuments.getDescription()) {
+						if (completeElement.getHastype().getClavilenoid().equals(elemtyh.getClavilenoid()))
+							return Long.parseLong(((CompleteTextElement)completeElement).getValue());
+					}
+			}
+		} catch (Exception e) {
+			return null;
+		}
+		return null;
 	}
 
 }
