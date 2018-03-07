@@ -782,8 +782,7 @@ public class IMSCPprocess {
 
 			Document.append("<li> <span class=\"_Type Icon N_1\">Icon:</span> <img class=\"Icon _Value N_1V\" src=\""+
 			completeDocuments.getClavilenoid()+File.separator+NameS+"\" onmouseover=\"this.width="+width+";this.height="+height+";\" onmouseout=\"this.width="+widthmini+";this.height="+heightmini+";\" width=\""+widthmini+"\" height=\""+heightmini+"\" alt=\""+Path+"\" /></li>");
-			Document.append("<li> <span class=\"_Type Description N_2\">Description:</span> <span class=\"Description _Value N_0V\">"+completeDocuments.getDescriptionText()+"</span></li>");
-			
+			Document.append("<li> <span class=\"_Type Description N_2\">Description:</span> <span class=\"Description _Value N_0V\">"+textToHtmlConvertingURLsToLinks(completeDocuments.getDescriptionText())+"</span></li>");
 		
 			
 			for (CompleteGrammar completeGrammar : completeGrammarL) {
@@ -1218,7 +1217,7 @@ public class IMSCPprocess {
 				Vacio=false;
 				if (E instanceof CompleteTextElement)
 					{
-					StringSalida.append("<li> <span class=\"_Type "+tipo+"\">"+((CompleteElementType)completeST).getName()+":</span> <span class=\""+tipo+"V"+" _Value\">"+((CompleteTextElement)E).getValue()+"</span> </li>");
+					StringSalida.append("<li> <span class=\"_Type "+tipo+"\">"+((CompleteElementType)completeST).getName()+":</span> <span class=\""+tipo+"V"+" _Value\">"+textToHtmlConvertingURLsToLinks(((CompleteTextElement)E).getValue())+"</span> </li>");
 					}
 				else if (E instanceof CompleteLinkElement)
 					{
@@ -1277,7 +1276,7 @@ public class IMSCPprocess {
 							"\" onmouseover=\"this.width="+width+";this.height="+height+";\" onmouseout=\"this.width="+widthmini+";this.height="+heightmini+
 							";\" width=\""+widthmini+"\" height=\""+heightmini+"\" alt=\""+completeDocuments.getClavilenoid()+File.separator+NameS+"\" /> "+
 //							"<span class=\""+tipo+"V _ClavyID _Value\">" +Linked.getClavilenoid()+"</span>"+
-							"<span class=\""+tipo+"V _DescriptionRel _Value\">" +Linked.getDescriptionText()+"</span></li>");
+							"<span class=\""+tipo+"V _DescriptionRel _Value\">" +textToHtmlConvertingURLsToLinks(Linked.getDescriptionText())+"</span></li>");
 					
 					
 					}
@@ -1661,6 +1660,18 @@ return null;
 		while (NameCSS.get(Base+i)!=null&&NameCSS.get(Base+i)!=completeST)
 			i++;
 		return Base+i;
+	}
+	
+	
+	public static String textToHtmlConvertingURLsToLinks(String text) {
+	    if (text == null) {
+	        return text;
+	    }
+
+
+
+	    return text.replaceAll("(\\A|\\s)((http|https|ftp|mailto):\\S+)(\\s|\\z)",
+	        "$1<a href=\"$2\">$2</a>$4");
 	}
 
 }
