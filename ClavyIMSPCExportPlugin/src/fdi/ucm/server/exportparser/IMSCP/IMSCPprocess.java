@@ -758,8 +758,17 @@ public class IMSCPprocess {
 //				CL.getLogLines().add("Image copy, file with url ->>"+url2.toString()+"");
 				saveImage(url2, Icon);
 			} catch (Exception e) {
-				e.printStackTrace();
-				CL.getLogLines().add("Error in Icon copy, file with url ->>"+completeDocuments.getIcon()+" not found or restringed");
+				CL.getLogLines().add("Error in Icon copy (method1), file with url ->>"+completeDocuments.getIcon()+" not found or restringed");
+				try {
+					URL url2 = new URL(Path);
+					saveImageM2(url2, Icon);
+				} catch (Exception e2) {
+					e.printStackTrace();
+					CL.getLogLines().add("Error in Icon copy (method2), file with url ->>"+completeDocuments.getIcon()+" not found or restringed");
+				}
+				
+				
+				
 				
 			}
 			
@@ -973,6 +982,22 @@ public class IMSCPprocess {
 		return SalidaWeb;
 			
 //			return creaLaWeb(CodigoHTML,Long.toString(completeDocuments.getClavilenoid()));
+	}
+
+private void saveImageM2(URL imageUrl, String destinationFile) throws IOException {
+	URL url = imageUrl;
+	InputStream is = url.openStream();
+	OutputStream os = new FileOutputStream(destinationFile);
+
+	byte[] b = new byte[2048];
+	int length;
+
+	while ((length = is.read(b)) != -1) {
+		os.write(b, 0, length);
+	}
+
+	is.close();
+	os.close();
 	}
 
 //	private URL parseusrl(URL url2) throws URISyntaxException, MalformedURLException {
