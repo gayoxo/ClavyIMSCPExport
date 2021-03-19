@@ -758,13 +758,41 @@ public class IMSCPprocess {
 //				CL.getLogLines().add("Image copy, file with url ->>"+url2.toString()+"");
 				saveImage(url2, Icon);
 			} catch (Exception e) {
+				e.printStackTrace();
+//				CL.getLogLines().add(e.getMessage());
 				CL.getLogLines().add("Error in Icon copy (method1), file with url ->>"+completeDocuments.getIcon()+" not found or restringed");
 				try {
 					URL url2 = new URL(Path);
 					saveImageM2(url2, Icon);
+					CL.getLogLines().add("method2 Works");
 				} catch (Exception e2) {
-					e.printStackTrace();
+					e2.printStackTrace();
+//					CL.getLogLines().add(e2.getMessage());
 					CL.getLogLines().add("Error in Icon copy (method2), file with url ->>"+completeDocuments.getIcon()+" not found or restringed");
+					try {
+						String Path2 = Path.replace(" ", "%20");
+						URL url2 = new URL(Path2);
+						saveImage(url2, Icon);
+						CL.getLogLines().add("method3 Works");
+					} catch (Exception e3) {	
+						e3.printStackTrace();
+//						CL.getLogLines().add(e3.getMessage());
+						CL.getLogLines().add("Error in Icon copy (method3), file with url ->>"+completeDocuments.getIcon()+" not found or restringed");
+						
+						try {
+							String Path2 = Path.replace(" ", "%20");
+							URL url2 = new URL(Path2);
+							saveImageM2(url2, Icon);
+							CL.getLogLines().add("method4 Works");
+						} catch (Exception e4) {
+							e4.printStackTrace();
+//							CL.getLogLines().add(e4.getMessage());
+							CL.getLogLines().add("Error in Icon copy (method4), file with url ->>"+completeDocuments.getIcon()+" not found or restringed");
+						}
+						
+					}
+					
+	
 				}
 				
 				
@@ -1266,6 +1294,8 @@ private void saveImageM2(URL imageUrl, String destinationFile) throws IOExceptio
 					
 					try {
 					
+						//TODO AQUI AQUI 
+						
 					NameS=URLEncoder.encode(NameS, "UTF-8");
 						URL url2 = new URL(Path);
 //						url2=parseusrl(url2);
@@ -1273,8 +1303,41 @@ private void saveImageM2(URL imageUrl, String destinationFile) throws IOExceptio
 						saveImage(url2, Icon);
 					} catch (Exception e) {
 						e.printStackTrace();
-						CL.getLogLines().add("Error in Image copy, file with url ->>"+Linked.getIcon()+" not found or restringed");
+//						CL.getLogLines().add(e.getMessage());
+						CL.getLogLines().add("Error in Icon copy (method1), file with url ->>"+Linked.getIcon()+" not found or restringed");
+						try {
+							URL url2 = new URL(Path);
+							saveImageM2(url2, Icon);
+							CL.getLogLines().add("method2 Works");
+						} catch (Exception e2) {
+							e2.printStackTrace();
+//							CL.getLogLines().add(e2.getMessage());
+							CL.getLogLines().add("Error in Icon copy (method2), file with url ->>"+Linked.getIcon()+" not found or restringed");
+							try {
+								String Path2 = Path.replace(" ", "%20");
+								URL url2 = new URL(Path2);
+								saveImage(url2, Icon);
+								CL.getLogLines().add("method3 Works");
+							} catch (Exception e3) {	
+								e3.printStackTrace();
+//								CL.getLogLines().add(e3.getMessage());
+								CL.getLogLines().add("Error in Icon copy (method3), file with url ->>"+Linked.getIcon()+" not found or restringed");
+								
+								try {
+									String Path2 = Path.replace(" ", "%20");
+									URL url2 = new URL(Path2);
+									saveImageM2(url2, Icon);
+									CL.getLogLines().add("method4 Works");
+								} catch (Exception e4) {
+									e4.printStackTrace();
+//									CL.getLogLines().add(e4.getMessage());
+									CL.getLogLines().add("Error in Icon copy (method4), file with url ->>"+Linked.getIcon()+" not found or restringed");
+								}
+						
+							}
+						}
 					}
+					
 					
 					
 					
@@ -1346,7 +1409,38 @@ private void saveImageM2(URL imageUrl, String destinationFile) throws IOExceptio
 							saveImage(url2, Icon);
 						} catch (Exception e) {
 							e.printStackTrace();
-							CL.getLogLines().add("Error in Image copy, file with url ->> "+Link+" not found or restringed");
+							CL.getLogLines().add("Error in Icon copy (method1), file with url ->>"+Link+" not found or restringed");
+							try {
+								URL url2 = new URL(Path);
+								saveImageM2(url2, Icon);
+								CL.getLogLines().add("method2 Works");
+							} catch (Exception e2) {
+								e2.printStackTrace();
+//								CL.getLogLines().add(e2.getMessage());
+								CL.getLogLines().add("Error in Icon copy (method2), file with url ->>"+Link+" not found or restringed");
+								try {
+									String Path2 = Path.replace(" ", "%20");
+									URL url2 = new URL(Path2);
+									saveImage(url2, Icon);
+									CL.getLogLines().add("method3 Works");
+								} catch (Exception e3) {	
+									e3.printStackTrace();
+//									CL.getLogLines().add(e3.getMessage());
+									CL.getLogLines().add("Error in Icon copy (method3), file with url ->>"+Link+" not found or restringed");
+									
+									try {
+										String Path2 = Path.replace(" ", "%20");
+										URL url2 = new URL(Path2);
+										saveImageM2(url2, Icon);
+										CL.getLogLines().add("method4 Works");
+									} catch (Exception e4) {
+										e4.printStackTrace();
+//										CL.getLogLines().add(e4.getMessage());
+										CL.getLogLines().add("Error in Icon copy (method4), file with url ->>"+Link+" not found or restringed");
+									}
+							
+								}
+							}
 						}
 						
 						int width= 50;
@@ -1429,7 +1523,41 @@ private void saveImageM2(URL imageUrl, String destinationFile) throws IOExceptio
 						saveImage(url2, Icon);
 					} catch (Exception e) {
 						e.printStackTrace();
-						CL.getLogLines().add("Error in Image copy, file with url ->> "+Linked.getPath()+" not found or restringed");
+						
+						CL.getLogLines().add("Error in Icon copy (method1), file with url ->>"+Linked.getPath()+" not found or restringed");
+						try {
+							URL url2 = new URL(Path);
+							saveImageM2(url2, Icon);
+							CL.getLogLines().add("method2 Works");
+						} catch (Exception e2) {
+							e2.printStackTrace();
+//							CL.getLogLines().add(e2.getMessage());
+							CL.getLogLines().add("Error in Icon copy (method2), file with url ->>"+Linked.getPath()+" not found or restringed");
+							try {
+								String Path2 = Path.replace(" ", "%20");
+								URL url2 = new URL(Path2);
+								saveImage(url2, Icon);
+								CL.getLogLines().add("method3 Works");
+							} catch (Exception e3) {	
+								e3.printStackTrace();
+//								CL.getLogLines().add(e3.getMessage());
+								CL.getLogLines().add("Error in Icon copy (method3), file with url ->>"+Linked.getPath()+" not found or restringed");
+								
+								try {
+									String Path2 = Path.replace(" ", "%20");
+									URL url2 = new URL(Path2);
+									saveImageM2(url2, Icon);
+									CL.getLogLines().add("method4 Works");
+								} catch (Exception e4) {
+									e4.printStackTrace();
+//									CL.getLogLines().add(e4.getMessage());
+									CL.getLogLines().add("Error in Icon copy (method4), file with url ->>"+Linked.getPath()+" not found or restringed");
+								}
+						
+							}
+						}
+						
+						
 					}
 					
 					int width= 50;
