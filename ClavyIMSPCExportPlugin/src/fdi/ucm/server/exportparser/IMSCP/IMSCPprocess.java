@@ -4,15 +4,18 @@
 package fdi.ucm.server.exportparser.IMSCP;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
@@ -235,11 +238,40 @@ public class IMSCPprocess {
 
 	
 	private void IncludeJSMAPS() throws IOException {
-		URL website = new URL("https://raw.githubusercontent.com/HPNeo/gmaps/master/gmaps.js");
-		ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-		FileOutputStream fos = new FileOutputStream(SOURCE_FOLDER+File.separator+"gmaps.js");
-		fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-		fos.close();
+		
+		File original = new File(getClass().getResource("gmaps.js").getFile());
+		File copied = new File(SOURCE_FOLDER+"\\gmaps.js");
+	    try (
+	      InputStream in = new BufferedInputStream(
+	        new FileInputStream(original));
+	      OutputStream out = new BufferedOutputStream(
+	        new FileOutputStream(copied))) {
+	 
+	        byte[] buffer = new byte[1024];
+	        int lengthRead;
+	        while ((lengthRead = in.read(buffer)) > 0) {
+	            out.write(buffer, 0, lengthRead);
+	            out.flush();
+	        }
+	    } catch (FileNotFoundException e) {
+			e.printStackTrace();
+			CL.getLogLines().add("Error de copia del archivo css // Error in css file copy");
+		} catch (IOException e) {
+			e.printStackTrace();
+			CL.getLogLines().add("Error de copia del archivo css // Error in css file copy");
+
+		}
+		
+		
+//		
+//		URL website = new URL("https://raw.githubusercontent.com/HPNeo/gmaps/master/gmaps.js");
+//		
+//		
+//		
+//		ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+//		FileOutputStream fos = new FileOutputStream(SOURCE_FOLDER+File.separator+"gmaps.js");
+//		fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+//		fos.close();
 		
 	}
 
@@ -675,20 +707,20 @@ public class IMSCPprocess {
 			StringBuffer CodigoHTML = new StringBuffer();
 			CodigoHTML.append("<html>");
 			CodigoHTML.append("<head>");  
-			CodigoHTML.append("<title>"+EXPORTTEXT+"</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">"); 
-			CodigoHTML.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"style.css\">");
-			CodigoHTML.append("<meta name=\"description\" content=\"Informe generado por el sistema "+CLAVY+"\">");
+			CodigoHTML.append("<title>"+EXPORTTEXT+"</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />"); 
+			CodigoHTML.append("<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"style.css\" />");
+			CodigoHTML.append("<meta name=\"description\" content=\"Informe generado por el sistema "+CLAVY+"\" />");
 			Calendar C=new GregorianCalendar();
 			DateFormat df = new SimpleDateFormat ("yyyy-MM-dd");
 			String ValueHoy = df.format(C.getTime());	
-			CodigoHTML.append("<meta name=\"fecha\" content=\""+ValueHoy+"\">");
-			CodigoHTML.append("<meta name=\"author\" content=\"Grupo de investigación ILSA-UCM\">");
+			CodigoHTML.append("<meta name=\"fecha\" content=\""+ValueHoy+"\" />");
+			CodigoHTML.append("<meta name=\"author\" content=\"Grupo de investigación ILSA-UCM\" />");
 //			CodigoHTML.append("<style>");
 //			CodigoHTML.append("li.doc {color: blue;}");	
 //			CodigoHTML.append("</style>");
-			CodigoHTML.append("<script type=\"text/javascript\" src=\"https://maps.googleapis.com/maps/api/js?key=AIzaSyBPj8iz7libsW74GvKYCU7VdtggaOA8814&amp;v=3&sensor=true&libraries=places\"></script> \n");
-			CodigoHTML.append("<script src=\"http://maps.google.com/maps/api/js\"></script> \n"+
-  "<script src=\"gmaps.js\"></script> \n"+
+			CodigoHTML.append("<script type=\"text/javascript\" src=\"https://maps.googleapis.com/maps/api/js?key=AIzaSyBPj8iz7libsW74GvKYCU7VdtggaOA8814&amp;v=3&sensor=true&libraries=places\" />\n");
+			CodigoHTML.append("<script src=\"http://maps.google.com/maps/api/js\" /> \n"+
+  "<script src=\"gmaps.js\" /> \n"+
   "<style type=\"text/css\"> \n"+
   " .map { \n"+
   "    width: 100% !important; \n"+
@@ -1105,28 +1137,56 @@ private void saveImageM2(URL imageUrl, String destinationFile) throws IOExceptio
 		}
 
 	private void creaLACSS() {
-		 FileWriter filewriter = null;
-		 PrintWriter printw = null;
-		    
-		try {
-			 filewriter = new FileWriter(SOURCE_FOLDER+"\\style.css");//declarar el archivo
-		     printw = new PrintWriter(filewriter);//declarar un impresor
-		          
-		     printw.println("li._Document {color: blue;}");
-		     printw.println("span._Type {font-weight: bold;}");
-		     printw.println("ul._List {}");
-		     printw.println("span._Value {}");
-		     printw.println(".tab {overflow: hidden; border: 1px solid #ccc; background-color: #f1f1f1;}");
-		     printw.println(".tab button { background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s; }");
-		     printw.println(".tab button:hover {background-color: #ddd;}");
-		     printw.println(".tab button.active {background-color: #ccc;}");
-		     printw.println(".tabcontent {display: none; padding: 6px 12px; border: 1px solid #ccc; border-top: none;}");
-		     
-		     printw.close();//cerramos el archivo
-		} catch (Exception e) {
+		
+		File original = new File(getClass().getResource("style.css").getFile());
+		File copied = new File(SOURCE_FOLDER+"\\style.css");
+	    try (
+	      InputStream in = new BufferedInputStream(
+	        new FileInputStream(original));
+	      OutputStream out = new BufferedOutputStream(
+	        new FileOutputStream(copied))) {
+	 
+	        byte[] buffer = new byte[1024];
+	        int lengthRead;
+	        while ((lengthRead = in.read(buffer)) > 0) {
+	            out.write(buffer, 0, lengthRead);
+	            out.flush();
+	        }
+	    } catch (FileNotFoundException e) {
 			e.printStackTrace();
-			throw new RuntimeErrorException(new Error(e), "Error de archivo");
-		} 
+			CL.getLogLines().add("Error de copia del archivo css // Error in css file copy");
+		} catch (IOException e) {
+			e.printStackTrace();
+			CL.getLogLines().add("Error de copia del archivo css // Error in css file copy");
+
+		}
+		
+		
+		
+//		
+//		
+//		 FileWriter filewriter = null;
+//		 PrintWriter printw = null;
+//		    
+//		try {
+//			 filewriter = new FileWriter(SOURCE_FOLDER+"\\style.css");//declarar el archivo
+//		     printw = new PrintWriter(filewriter);//declarar un impresor
+//		          
+//		     printw.println("li._Document {color: blue;}");
+//		     printw.println("span._Type {font-weight: bold;}");
+//		     printw.println("ul._List {}");
+//		     printw.println("span._Value {}");
+//		     printw.println(".tab {overflow: hidden; border: 1px solid #ccc; background-color: #f1f1f1;}");
+//		     printw.println(".tab button { background-color: inherit; float: left; border: none; outline: none; cursor: pointer; padding: 14px 16px; transition: 0.3s; }");
+//		     printw.println(".tab button:hover {background-color: #ddd;}");
+//		     printw.println(".tab button.active {background-color: #ccc;}");
+//		     printw.println(".tabcontent {display: none; padding: 6px 12px; border: 1px solid #ccc; border-top: none;}");
+//		     
+//		     printw.close();//cerramos el archivo
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			throw new RuntimeErrorException(new Error(e), "Error de archivo");
+//		} 
 		
 	}
 
@@ -1825,6 +1885,59 @@ return null;
 
 	    return text.replaceAll("(\\A|\\s)((http|https|ftp|mailto):\\S+)(\\s|\\z)",
 	        "$1<a href=\"$2\">$2</a>$4");
+	}
+	
+	
+	public static void main(String[] args) {
+		try {
+				
+				
+				String fileName = args[0];
+				 System.out.println(fileName);
+				 
+
+				 File file = new File(fileName);
+				 FileInputStream fis = new FileInputStream(file);
+				 ObjectInputStream ois = new ObjectInputStream(fis);
+				 CompleteCollection object = (CompleteCollection) ois.readObject();
+				 
+				 CompleteDocuments CD=object.getEstructuras().get(0);
+				 
+				 if (CD.getClavilenoid()==null)
+					 CD.setClavilenoid(12324l);
+				 
+				 List<Long> LCD=new LinkedList<Long>();
+				 LCD.add(CD.getClavilenoid());
+				 
+				 CompleteLogAndUpdates CL=new CompleteLogAndUpdates();
+				 
+				 String FString="/tmp/"+System.nanoTime()+"/";
+				 new File(FString).mkdirs();
+				 
+				 IMSCPprocess IS=new IMSCPprocess(LCD,object,FString,CL,"Coleccion Prueba main : "+fileName);
+				 IS.preocess();
+				 
+				 if (!CL.getLogLines().isEmpty())
+					 for (String long1 : CL.getLogLines()) {
+						System.err.println(long1);
+					}
+				 
+				 try {
+					 ois.close();
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				
+				 try {
+					 fis.close();
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

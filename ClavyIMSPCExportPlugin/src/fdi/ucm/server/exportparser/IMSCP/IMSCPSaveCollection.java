@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -273,9 +274,7 @@ public class IMSCPSaveCollection extends SaveCollection {
 	}
  
 	
-	public static void main(String[] args) {
-		
-	}
+
 
 
 	private static boolean testList(String number) {
