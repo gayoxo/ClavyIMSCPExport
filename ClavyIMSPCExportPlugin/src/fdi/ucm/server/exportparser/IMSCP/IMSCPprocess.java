@@ -718,9 +718,9 @@ public class IMSCPprocess {
 //			CodigoHTML.append("<style>");
 //			CodigoHTML.append("li.doc {color: blue;}");	
 //			CodigoHTML.append("</style>");
-			CodigoHTML.append("<script type=\"text/javascript\" src=\"https://maps.googleapis.com/maps/api/js?key=AIzaSyBPj8iz7libsW74GvKYCU7VdtggaOA8814&amp;v=3&sensor=true&libraries=places\" />\n");
-			CodigoHTML.append("<script src=\"http://maps.google.com/maps/api/js\" /> \n"+
-  "<script src=\"gmaps.js\" /> \n"+
+			CodigoHTML.append("<script type=\"text/javascript\" src=\"https://maps.googleapis.com/maps/api/js?key=AIzaSyBPj8iz7libsW74GvKYCU7VdtggaOA8814&amp;v=3&sensor=true&libraries=places\" > </script>\n");
+			CodigoHTML.append("<script src=\"http://maps.google.com/maps/api/js\"> </script> \n"+
+  "<script src=\"gmaps.js\"> </script> \n"+
   "<style type=\"text/css\"> \n"+
   " .map { \n"+
   "    width: 100% !important; \n"+
@@ -750,9 +750,9 @@ public class IMSCPprocess {
 			
 			CodigoHTML.append("function primeraTab() {");
 					CodigoHTML.append(" openCity(event, 'Document');");
-							CodigoHTML.append("}");
+							CodigoHTML.append("}\n");
 							
-		CodigoHTML.append("</script>");
+		CodigoHTML.append("</script> \n");
 	
 		HashMap<StringBuffer,String> Pesatanas=new HashMap<StringBuffer,String>();
 		ArrayList<StringBuffer> ListaPestanas=new ArrayList<StringBuffer>();
